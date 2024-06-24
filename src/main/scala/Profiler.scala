@@ -85,6 +85,7 @@ object Profiler {
 
   def main(args: String*): Unit =
     args match
+      case List[String]() => println("Usage: java -jar <jar name> [--tojson | --topro] <input file path>")
       case List[String]("--parse", paths*) => paths.foreach((s: String) => parse(Paths.get(s)))
       case List[String]("--print", paths*) => paths.foreach((s: String) => print(Paths.get(s)))
       case List[String]("--tojson", paths*) => paths.foreach((s: String) => writeJSONFile(Paths.get(s)))
