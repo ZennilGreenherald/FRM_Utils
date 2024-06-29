@@ -483,10 +483,10 @@ class ProfileFrame {
 
     val materialsCombo = new JComboBox(materialNames)
 
-    val sceneryCommonListPanel = new TopPanel(
-        NamedFieldPanel(Seq(("Wall Light Type Flags", wallLightTypeFlagList))),
-        NamedFieldPanel(Seq(("Action Flags", actionFlagList)))
-    )
+    val sceneryLightPanel = NamedFieldPanel(Seq(("Wall Light Type Flags", wallLightTypeFlagList)))
+    val sceneryActionPanel = NamedFieldPanel(Seq(("Action Flags", actionFlagList)))
+    val sceneryCommonListPanel = new TopPanel(sceneryLightPanel, sceneryActionPanel)
+
     val sceneryCommonIdPanel = NamedFieldPanel(
         Seq(
             "Script Type", 
@@ -537,14 +537,10 @@ class ProfileFrame {
     wallActionFlagList.setSelectionMode(ListSelectionModel.MULTIPLE_INTERVAL_SELECTION)
     wallActionFlagList.setLayoutOrientation(JList.VERTICAL)
 
-    val wallsPanel1 = new TopPanel(
-        NamedFieldPanel(Seq(
-            ("Wall Light Type Flags", wallsWallLightTypeFlagList), 
-        )),
-        NamedFieldPanel(Seq(
-            ("ActionFlags", wallActionFlagList), 
-        ))
-    )
+    val wallLightTypePanel = NamedFieldPanel(Seq(("Wall Light Type Flags", wallsWallLightTypeFlagList)))
+    val wallActionPanel    = NamedFieldPanel(Seq(("ActionFlags", wallActionFlagList)))
+
+    val wallsPanel1 = new TopPanel(wallLightTypePanel, wallActionPanel)
 
     val wallsPanel2 = NamedFieldPanel(Seq(
         "Script Type", 
@@ -742,7 +738,6 @@ class ProfileFrame {
             ) => 
                 loadCommon(commonHeader)
 
-
                 println(s"itemCommonData: ${itemCommonData.length}: ${itemCommonData.toSeq}")
 
                 val (mask, checkBox) = itemFlags(0)
@@ -811,7 +806,118 @@ class ProfileFrame {
                     case KeyFields      (keyCode) =>
                         itemKeyPanel.inputs(0).asInstanceOf[JTextField].setText(keyCode.toString)
 
-                
-}
+            case ProfileData(
+                commonHeader,
+                SceneryData(
+                    SceneryCommonData(
+                        wallLightTypeFlags: Int,
+                        actionFlags: Int,
+                        ScriptTypeAndId(scriptType: Int, possiblePartOfScriptId: Int, scriptId: Int),
+                        scenerySubtype: Int,
+                        materialId: Int,
+                        soundId: Int
+                    ),
+                    scenerySubtypeData: ScenerySubtypeData
+                )
+            ) => 
+                loadCommon(commonHeader)
 
+                val wallLightListModel = wallLightTypeFlagList.getModel()
+                val selectedWallLightMsgs = 
+                    for ((mask, msg) <- wallLightTypeFlagValues if (mask & wallLightTypeFlags) == mask)
+                        yield msg
+                val selectWallLightIndexes =
+                    for (i <- 0 until wallLightListModel.getSize() if selectedWallLightMsgs.contains(wallLightListModel.getElementAt(i))) 
+                        yield i
+                wallLightTypeFlagList.setSelectedIndices(selectWallLightIndexes.toArray)
+
+                val actionFlagListModel = actionFlagList.getModel()
+                val selectedActionMsgs = 
+                    for ((mask, msg) <- actionFlagValues if (mask & actionFlags) == mask)
+                        yield msg
+                val selectActionIndexes =
+                    for (i <- 0 until actionFlagListModel.getSize() if selectedActionMsgs.contains(actionFlagListModel.getElementAt(i))) 
+                        yield i
+                actionFlagList.setSelectedIndices(selectActionIndexes.toArray)
+
+                sceneryCommonIdPanel.inputs(0).asInstanceOf[JTextField].setText(scriptType.toString)
+                sceneryCommonIdPanel.inputs(1).asInstanceOf[JTextField].setText(((possiblePartOfScriptId << 16) | scriptId).toString)
+
+                sceneryCommonIdPanel.inputs(2).asInstanceOf[JComboBox[String]].setSelectedItem(scenerySubtypeNames(scenerySubtype))
+                sceneryCommonIdPanel.inputs(3).asInstanceOf[JComboBox[String]].setSelectedItem(materialNames(materialId))
+
+                sceneryCommonIdPanel.inputs(4).asInstanceOf[JTextField].setText(soundId.toString)
+
+                scenerySubtypeData match
+                    case Door(walkThruFlagValue: Int, unknown: Int) =>
+                        walkThruFlagCheckbox.setSelected((walkThruFlagValue & walkThruFlag) == walkThruFlag)
+                        for ((num, label) <- doorUnknownValues)
+                            if (num == unknown)
+                                doorUnknownCombo.setSelectedItem(label)
+
+                    case Stairs(data: Array[Int]) =>
+                        data.zip(sceneryStairsPanel.inputs).map{
+                            case (num, field) => field.asInstanceOf[JTextField].setText(num.toString)
+                        }
+
+                    case Elevator(elevType: Int, elevLevel: Int) =>
+                        sceneryElevatorPanel.inputs(0).asInstanceOf[JTextField].setText(elevType.toString)
+                        sceneryElevatorPanel.inputs(1).asInstanceOf[JTextField].setText(elevLevel.toString)
+
+                    case LadderBottom(destTileAndElev: Array[Int]) =>
+                        sceneryElevatorPanel.inputs(0).asInstanceOf[JTextField].setText(destTileAndElev(0).toString)
+                        sceneryElevatorPanel.inputs(1).asInstanceOf[JTextField].setText(destTileAndElev(1).toString)
+
+                    case LadderTop(destTileAndElev: Array[Int]) =>
+                        sceneryElevatorPanel.inputs(0).asInstanceOf[JTextField].setText(destTileAndElev(0).toString)
+                        sceneryElevatorPanel.inputs(1).asInstanceOf[JTextField].setText(destTileAndElev(1).toString)
+
+                    case Generic(unknown: Int) =>
+                        sceneryGenericPanel.inputs(0).asInstanceOf[JTextField].setText(unknown.toString)
+
+            case ProfileData(
+                commonHeader,
+                WallsData(lightTypeFlags: Int, actionFlags: Int, ScriptTypeAndId(scriptType: Int, possiblePartOfScriptId: Int, scriptId: Int), materialId: Int)
+            ) => 
+                loadCommon(commonHeader)
+
+                val wallLightListModel = wallsWallLightTypeFlagList.getModel()
+                val selectedWallLightMsgs = 
+                    for ((mask, msg) <- wallLightTypeFlagValues if (mask & lightTypeFlags) == mask)
+                        yield msg
+                val selectWallLightIndexes =
+                    for (i <- 0 until wallLightListModel.getSize() if selectedWallLightMsgs.contains(wallLightListModel.getElementAt(i))) 
+                        yield i
+                wallsWallLightTypeFlagList.setSelectedIndices(selectWallLightIndexes.toArray)
+
+                val wallActionFlagListModel = wallActionFlagList.getModel()
+                val selectedWallActionMsgs = 
+                    for ((mask, msg) <- actionFlagValues if (mask & actionFlags) == mask)
+                        yield msg
+                val selectWallActionIndexes =
+                    for (i <- 0 until wallActionFlagListModel.getSize() if selectedWallActionMsgs.contains(wallActionFlagListModel.getElementAt(i))) 
+                        yield i
+                wallActionFlagList.setSelectedIndices(selectWallActionIndexes.toArray)
+
+                wallsPanel2.inputs(0).asInstanceOf[JTextField].setText(scriptType.toString)
+                wallsPanel2.inputs(1).asInstanceOf[JTextField].setText(((possiblePartOfScriptId << 16) | scriptId).toString)
+                wallsPanel2.inputs(2).asInstanceOf[JComboBox[String]].setSelectedItem(materialNames(materialId))
+
+            case ProfileData(
+                commonHeader,
+                TilesData(materialId: Int)
+            ) => 
+                loadCommon(commonHeader)
+
+                tilesPanel.inputs(0).asInstanceOf[JComboBox[String]].setSelectedItem(materialNames(materialId))
+
+            case ProfileData(
+                commonHeader,
+                MiscData(unknown: Int)
+            ) => 
+                loadCommon(commonHeader)
+
+                miscPanel.inputs(0).asInstanceOf[JTextField].setText(unknown.toString)
+
+}
 
