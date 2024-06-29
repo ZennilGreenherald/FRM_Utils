@@ -13,7 +13,7 @@ object HeaderInputs {
     headerFlagsList.setSelectionMode(ListSelectionModel.MULTIPLE_INTERVAL_SELECTION)
     headerFlagsList.setLayoutOrientation(JList.VERTICAL)
 
-    val fieldPairs = Seq(
+    val fieldPairs: Seq[(String, JComponent)] = Seq(
         ("Object Type", objectTypeCombo),
         ("Object Id", new JTextField()),
         ("Text Id", new JTextField()),
@@ -25,61 +25,66 @@ object HeaderInputs {
     )
 }
 
-class ProfileFrame {
-
-    val headerFieldPanel = namedFieldPanelFactory(HeaderInputs.fieldPairs)
-    // val headerStatsPanel = NamedFieldPanel(
-    //     Seq(
-    //         ("Object Type", objectTypeCombo),
-    //         "Object Id",
-    //         "Text Id",
-    //         ("Frm Type", frmTypeCombo),
-    //         "Frm Id",
-    //         "Light Radius",
-    //         "Light Intensity" 
-    //     )
-    // )
-    // val headerFlagsPanel = NamedFieldPanel(
-    //     Seq(
-    //         ("Flags", headerFlagsList)
-    //     )
-    // )
-    // val headerFieldPanel = new TopPanel(headerStatsPanel, new TopPanel(headerFlagsPanel))
-
-    val itemSubtypeCombo = new JComboBox(itemSubtypeNames)
-
+object ItemInputs {
     val actionPanel = new JPanel()
     actionPanel.setBorder(BorderFactory.createEmptyBorder())
     actionFlags.foreach(a => actionPanel.add(a._2))
 
-    val itemCommonPanel = new JPanel(new BorderLayout)
-    val itemCommonPanel1 = NamedFieldPanel(
-        Seq(
-            ("Item Flag", itemFlags(0)(1)), 
-            ("Action Flags", actionPanel), 
-        )
-    )
-
     val attackModeCombo1 = new JComboBox(attackModeNames)
     val attackModeCombo2 = new JComboBox(attackModeNames)
+    val itemSubtypeCombo = new JComboBox(itemSubtypeNames)
 
-    val itemCommonPanel2 = NamedFieldPanel(
-        Seq(
-            "Weapon Flags", 
-            ("Attack Mode 1", attackModeCombo1), 
-            ("Attack Mode 2", attackModeCombo2), 
-            "Script Id", 
-            ("Object Subtype", itemSubtypeCombo), 
-            "Material Id", 
-            "Size", 
-            "Weight", 
-            "Cost", 
-            "Inv FID", 
-            "Sound Id"
-        )
+    val fieldPairs: Seq[(String, JComponent)] = Seq(
+        ("Item Flag", itemFlags(0)(1)), 
+        ("Action Flags", actionPanel), 
+        ("Weapon Flags", new JTextField()),
+        ("Attack Mode 1", attackModeCombo1), 
+        ("Attack Mode 2", attackModeCombo2), 
+        ("Script Id", new JTextField()),
+        ("Object Subtype", itemSubtypeCombo), 
+        ("Material Id", new JTextField()),
+        ("Size", new JTextField()),
+        ("Weight", new JTextField()),
+        ("Cost", new JTextField()),
+        ("Inv FID", new JTextField()),
+        ("Sound Id", new JTextField())
     )
-    itemCommonPanel.add(itemCommonPanel1, BorderLayout.NORTH)
-    itemCommonPanel.add(itemCommonPanel2)
+
+}
+
+class ProfileFrame {
+
+    val headerFieldPanel = namedFieldPanelFactory(HeaderInputs.fieldPairs)
+
+    // val itemCommonPanel = new JPanel(new BorderLayout)
+    // val itemCommonPanel1 = NamedFieldPanel(
+    //     Seq(
+    //         ("Item Flag", itemFlags(0)(1)), 
+    //         ("Action Flags", actionPanel), 
+    //     )
+    // )
+
+    // val attackModeCombo1 = new JComboBox(attackModeNames)
+    // val attackModeCombo2 = new JComboBox(attackModeNames)
+
+    // val itemCommonPanel2 = NamedFieldPanel(
+    //     Seq(
+    //         "Weapon Flags", 
+    //         ("Attack Mode 1", attackModeCombo1), 
+    //         ("Attack Mode 2", attackModeCombo2), 
+    //         "Script Id", 
+    //         ("Object Subtype", itemSubtypeCombo), 
+    //         "Material Id", 
+    //         "Size", 
+    //         "Weight", 
+    //         "Cost", 
+    //         "Inv FID", 
+    //         "Sound Id"
+    //     )
+    // )
+    // itemCommonPanel.add(itemCommonPanel1, BorderLayout.NORTH)
+    // itemCommonPanel.add(itemCommonPanel2)
+    val itemCommonPanel = namedFieldPanelFactory(ItemInputs.fieldPairs)
 
     val itemArmorPanel = NamedFieldPanel(
         Seq(
@@ -406,8 +411,8 @@ class ProfileFrame {
     val itemPanel = new JPanel(new BorderLayout())
     itemPanel.add(itemCommonPanel, BorderLayout.NORTH)
     itemPanel.add(itemSubtypePanel)
-    itemSubtypeCombo.addActionListener(e => {
-        itemSubtypePanel.selectRadio(itemSubtypeNames.indexOf(itemSubtypeCombo.getSelectedItem().asInstanceOf[String]))
+    ItemInputs.itemSubtypeCombo.addActionListener(e => {
+        itemSubtypePanel.selectRadio(itemSubtypeNames.indexOf(ItemInputs.itemSubtypeCombo.getSelectedItem().asInstanceOf[String]))
     })
 
     val sceneryPanel = new JPanel(new BorderLayout())
@@ -595,16 +600,17 @@ class ProfileFrame {
                     case (mask, checkBox) => checkBox.setSelected((mask & itemCommonData(1)) == mask)
                 }
 
-                itemCommonPanel2.inputs(0).asInstanceOf[JTextField].setText(itemCommonData(2).toString)
-                for (i <- Seq(3, 5, 6, 7, 8, 9, 10))
-                    itemCommonPanel2.inputs(i).asInstanceOf[JTextField].setText(itemCommonData(1 + i).toString)
+                val itemCommonInputs = ItemInputs.fieldPairs.map(_._2)
+                itemCommonInputs(2).asInstanceOf[JTextField].setText(itemCommonData(2).toString)
+                for (i <- Seq(5, 7, 8, 9, 10, 11, 12))
+                    itemCommonInputs(i).asInstanceOf[JTextField].setText(itemCommonData(i - 1).toString)
 
-                val attackNum = itemCommonData(2 + 1)
+                val attackNum = itemCommonData(3)
                 val attackMode1 = attackNum & 0x0f
                 val attackMode2 = attackNum & 0xf0
-                itemCommonPanel2.inputs(1).asInstanceOf[JComboBox[String]].setSelectedItem(weaponAnimCodeNames(attackMode1))
-                itemCommonPanel2.inputs(2).asInstanceOf[JComboBox[String]].setSelectedItem(weaponAnimCodeNames(attackMode2))
-                itemCommonPanel2.inputs(4).asInstanceOf[JComboBox[String]].setSelectedItem(itemSubtypeNames(itemCommonData(2 + 3)))
+                itemCommonInputs(3).asInstanceOf[JComboBox[String]].setSelectedItem(weaponAnimCodeNames(attackMode1))
+                itemCommonInputs(4).asInstanceOf[JComboBox[String]].setSelectedItem(weaponAnimCodeNames(attackMode2))
+                itemCommonInputs(6).asInstanceOf[JComboBox[String]].setSelectedItem(itemSubtypeNames(itemCommonData(5)))
 
                 subTypeData match
                     case ArmorFields(ac: Int, damageResists: Array[Int], damageThresholds: Array[Int], perk: Int, maleFid: Int, femaleFid: Int) =>
