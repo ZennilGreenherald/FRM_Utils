@@ -2,6 +2,38 @@ import javax.swing._
 import javax.swing.border._
 import java.awt._
 
+
+def namedFieldPanelFactory(fields: Seq[(String, Component)]): JPanel =
+    if (fields.isEmpty) throw new IllegalArgumentException(s"namedFieldPanelFactory fields arg is empty.")
+    val (theseFields, nextFields) =
+        if (fields(0)(1).isInstanceOf[JTextField] || fields(0)(1).isInstanceOf[JComboBox[?]])
+            val firstFatComponentIndex = fields.indexWhere{
+                case (_, comp: JTextField) => false
+                case (_, comp: JComboBox[?]) => false
+                case _ => true
+            }
+            if (firstFatComponentIndex == -1)
+                (fields, Nil)
+            else
+                (fields.take(firstFatComponentIndex), fields.drop(firstFatComponentIndex))
+        else
+            (fields.take(1), fields.tail)
+
+    val p = new JPanel()
+    p.setLayout(new GridLayout(0, 2))
+    p.setBorder(BorderFactory.createEmptyBorder(8, 8, 8, 8))
+    theseFields.foreach{ case (text, comp) =>
+        p.add(new JLabel(text))
+        p.add(comp)
+    }
+
+    val outer = new JPanel(new BorderLayout())
+    outer.add(p, BorderLayout.NORTH)
+    if (!nextFields.isEmpty)
+        outer.add(namedFieldPanelFactory(nextFields))
+    outer
+
+
 class NamedFieldPanel(fields: Seq[String | (String, Component)]) extends JPanel {
 
     setLayout(new GridLayout(0, 2))

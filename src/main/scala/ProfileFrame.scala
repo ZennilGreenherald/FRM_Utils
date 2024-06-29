@@ -3,170 +3,9 @@ import javax.swing.border.*
 import java.awt.*
 import java.awt.event.*
 
-object FlagsAndEnums {
+import FlagsAndEnums.*
 
-    val commonHeaderFlags = Array(
-        (0x00000008, "Flat (rendered first, just after tiles)"),
-        (0x00000010, "NoBlock (doesn't block the tile)"),
-        (0x00000800, "MultiHex"),
-        (0x00001000, "No Highlight"),
-        (0x00004000, "TransRed"),
-        (0x00008000, "TransNone (opaque)"),
-        (0x00010000, "TransWall"),
-        (0x00020000, "TransGlass"),
-        (0x00040000, "TransSteam"),
-        (0x00080000, "TransEnergy"),
-        (0x10000000, "WallTransEnd"),
-        (0x20000000, "LightThru"),
-        (0x80000000, "ShootThru")
-    )
-    val itemFlags = Array(
-        (0x080000, new JCheckBox("Hidden Item"))
-    )
-    val actionFlags = Array(
-        (0x000008, new JCheckBox("Can Be Used")),
-        (0x000010, new JCheckBox("Use On Something")),
-        (0x000080, new JCheckBox("PickUp"))
-    )
-    val openFlags = Array(
-        (0x00000001, new JCheckBox("Cannot Pick Up")),
-        (0x00000008, new JCheckBox("Magic Hands Grnd"))
-    )
-    val critterFlags = Array(
-        (0x00000002, "Barter (can trade with)"),
-        (0x00000020, "Steal (cannot steal from)"),
-        (0x00000040, "Drop (doesn't drop items)"),
-        (0x00000080, "Limbs (can not lose limbs)"),
-        (0x00000100, "Ages (dead body does not disappear)"),
-        (0x00000200, "Heal (damage is not cured with time)"),
-        (0x00000400, "Invulnerable (cannot be hurt)"),
-        (0x00000800, "Flatten (leaves no dead body)"),
-        (0x00001000, "Special (there is a special type of death)"),
-        (0x00002000, "Range (melee attack is possible at a distance)"),
-        (0x00004000, "Knock (cannot be knocked down)")
-    )
-    val wallLightTypeFlagValues = Array(
-        (0x0000, "North / South"),
-        (0x0800, "East / West"),
-        (0x1000, "North Corner"),
-        (0x2000, "South Corner"),
-        (0x4000, "East Corner"),
-        (0x8000, "West Corner")
-    )
-    val actionFlagValues = Array(
-        (0x0001, "Kneel down when using"),
-        (0x0008, "Use (can be used)"),
-        (0x0010, "Use On Smth (can be used on anything)"),
-        (0x0020, "Look"),
-        (0x0040, "Talk"),
-        (0x0080, "PickUp")
-    )
-    val doorUnknownValues = Array(
-        (0xCCCCCCCC, "0xCCCCCCCC (mostly)"),
-        (0xFFFFFFFF, "0xFFFFFFFF (sometimes)")
-    )
-    val walkThruFlag = 0x0000000F
-
-
-    val objectTypeNames = Array("items", "critters", "scenery", "walls", "tiles", "misc")
-    val frmTypeNames = Array("items", "critters", "scenery", "walls", "tiles", "backgrnd", "intrface", "inven")
-    val itemSubtypeNames = Array("Armor", "Container", "Drug", "Weapon", "Ammo", "Misc", "Key")
-    val attackModeNames = Array(
-        "None",
-        "Punch",
-        "Kick",
-        "Swing",
-        "Thrust", 
-        "Throw",
-        "Fire Single",
-        "Fire Burst",
-        "Flame"
-    )
-    val weaponAnimCodeNames = Array(
-        "None (A)",
-        "Knife (D)",
-        "Club (E)",
-        "Sledgehammer (F)",
-        "Spear (G)",
-        "Pistol (H)",
-        "SMG (I)",
-        "Rifle (J)",
-        "Big Gun (K)",
-        "Minigun (L)",
-        "Rocket Launcher (M)"
-    )
-    val damageTypeNames = Array(
-        "Normal",
-        "Laser",
-        "Fire",
-        "Plasma",
-        "Electrical",
-        "EMP",
-        "Explosive"
-    )
-    val killTypeNames = Array(
-        "Men",
-        "Women",
-        "Children",
-        "Super Mutants",
-        "Ghouls",
-        "Brahmin",
-        "Radscorpions",
-        "Rats",
-        "Floaters",
-        "Centaurs",
-        "Robots",
-        "Dogs",
-        "Manti",
-        "DeathClaws",
-        "Plants  (only applies to Fallout 2)",
-        "Geckos  (only applies to Fallout 2)",
-        "Aliens  (only applies to Fallout 2)",
-        "Giant Ants  (only applies to Fallout 2)",
-        "Big Bad Boss (only applies to Fallout 2)"
-    )
-    val scenerySubtypeNames = Array(
-        "Door",
-        "Stairs",
-        "Elevator",
-        "Ladder Bottom",
-        "Ladder Top",
-        "Generic Scenery"
-    )
-    val materialNames = Array(
-        "Glass",
-        "Metal",
-        "Plastic",
-        "Wood",
-        "Dirt",
-        "Stone",
-        "Cement",
-        "Leather"
-    )
-    val dtAndDrNames = Seq(
-        "DT Normal",
-        "DT Laser",
-        "DT Fire",
-        "DT Plasma",
-        "DT Electrical",
-        "DT EMP",
-        "DT Explosive",
-        "DR Normal",
-        "DR Laser",
-        "DR Fire",
-        "DR Plasma",
-        "DR Electrical",
-        "DR EMP",
-        "DR Explosive",
-        "DR Radiation",
-        "DR Poison",
-    )
-    val bodyTypeNames = Array("biped", "quadruped", "robotic")
-}
-
-class ProfileFrame {
-    import FlagsAndEnums.*
-
+object HeaderInputs {
     val objectTypeCombo = new JComboBox(objectTypeNames)
     val frmTypeCombo = new JComboBox(frmTypeNames)
 
@@ -174,28 +13,38 @@ class ProfileFrame {
     headerFlagsList.setSelectionMode(ListSelectionModel.MULTIPLE_INTERVAL_SELECTION)
     headerFlagsList.setLayoutOrientation(JList.VERTICAL)
 
-    val headerStatsPanel = NamedFieldPanel(
-        Seq(
-            ("Object Type", objectTypeCombo),
-            "Object Id",
-            "Text Id",
-            ("Frm Type", frmTypeCombo),
-            "Frm Id",
-            "Light Radius",
-            "Light Intensity"
-        )
+    val fieldPairs = Seq(
+        ("Object Type", objectTypeCombo),
+        ("Object Id", new JTextField()),
+        ("Text Id", new JTextField()),
+        ("Frm Type", frmTypeCombo),
+        ("Frm Id", new JTextField()),
+        ("Light Radius", new JTextField()),
+        ("Light Intensity", new JTextField()),
+        ("Flags", headerFlagsList)
     )
-    val headerFlagsPanel = NamedFieldPanel(
-        Seq(
-            ("Flags", headerFlagsList)
-        )
-    )
-    val headerFieldPanel = new JPanel(new BorderLayout())
-    val headerFieldPanel2 = new JPanel(new BorderLayout())
-    // headerFieldPanel.setPreferredSize(new Dimension(300, 450))
-    headerFieldPanel.add(headerStatsPanel, BorderLayout.NORTH)
-    headerFieldPanel2.add(headerFlagsPanel, BorderLayout.NORTH)
-    headerFieldPanel.add(headerFieldPanel2)
+}
+
+class ProfileFrame {
+
+    val headerFieldPanel = namedFieldPanelFactory(HeaderInputs.fieldPairs)
+    // val headerStatsPanel = NamedFieldPanel(
+    //     Seq(
+    //         ("Object Type", objectTypeCombo),
+    //         "Object Id",
+    //         "Text Id",
+    //         ("Frm Type", frmTypeCombo),
+    //         "Frm Id",
+    //         "Light Radius",
+    //         "Light Intensity" 
+    //     )
+    // )
+    // val headerFlagsPanel = NamedFieldPanel(
+    //     Seq(
+    //         ("Flags", headerFlagsList)
+    //     )
+    // )
+    // val headerFieldPanel = new TopPanel(headerStatsPanel, new TopPanel(headerFlagsPanel))
 
     val itemSubtypeCombo = new JComboBox(itemSubtypeNames)
 
@@ -428,7 +277,6 @@ class ProfileFrame {
             ("Critter Flags", critterFlagsList), 
         )
     )
-    val critterStatsPanel2Inputs = critterStatsPanel2.inputs
 
     val critterStatsPanel3 = NamedFieldPanel(
         Seq(
@@ -584,14 +432,14 @@ class ProfileFrame {
         ("Tiles", tilesPanel),
         ("Misc", miscPanel)
     ))
-    objectTypeCombo.addActionListener(e => {
-        subtypePanel.selectRadio(objectTypeNames.indexOf(objectTypeCombo.getSelectedItem().asInstanceOf[String]))
+    HeaderInputs.objectTypeCombo.addActionListener(e => {
+        subtypePanel.selectRadio(objectTypeNames.indexOf(HeaderInputs.objectTypeCombo.getSelectedItem().asInstanceOf[String]))
     })
 
     val mainPanel = new JPanel(new BorderLayout(8, 8))
     mainPanel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10))
 
-    val leftHeaderPanel = new TopPanel(headerFieldPanel)
+    val leftHeaderPanel = headerFieldPanel
 
     mainPanel.add(new LabeledPanel("Common Header", leftHeaderPanel), BorderLayout.WEST)
     mainPanel.add(subtypePanel)
@@ -603,7 +451,9 @@ class ProfileFrame {
     val menu = new JMenu("File")
     menu.setMnemonic(KeyEvent.VK_F)
     menuBar.add(menu)
+
     val menuItem = new JMenuItem("Open", KeyEvent.VK_O)
+    menuItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_O, ActionEvent.CTRL_MASK))
     menuItem.addActionListener(event => {
         if (event.getActionCommand() == "Open")
             val fc = new JFileChooser()
@@ -612,8 +462,8 @@ class ProfileFrame {
                 Option(fc.getSelectedFile()).foreach(f => load(Profiler.parseFile(f.toPath)))
     })
     menu.add(menuItem)
-    frame.setJMenuBar(menuBar)
 
+    frame.setJMenuBar(menuBar)
     frame.getContentPane().add(mainPanel)
     frame.pack()
     frame.setVisible(true)
@@ -630,7 +480,8 @@ class ProfileFrame {
                 lightIntensity,
                 headerFlags
             ) =>
-                val headerInputs = headerStatsPanel.inputs
+                // val headerInputs = headerStatsPanel.inputs
+                val headerInputs = HeaderInputs.fieldPairs.map(_._2)
                 headerInputs(0).asInstanceOf[JComboBox[String]].setSelectedItem(objectTypeNames(objType))
                 headerInputs(1).asInstanceOf[JTextField].setText(((possiblePartOfObjId << 16) | objId).toString)
                 headerInputs(2).asInstanceOf[JTextField].setText(textId.toString)
@@ -638,15 +489,20 @@ class ProfileFrame {
                 headerInputs(4).asInstanceOf[JTextField].setText(((possiblePartOfFrmId << 16) | frmId).toString)
                 headerInputs(5).asInstanceOf[JTextField].setText(lightRadius.toString)
                 headerInputs(6).asInstanceOf[JTextField].setText(lightIntensity.toString)
-                val headerFlagsList = headerFlagsPanel.inputs(0).asInstanceOf[JList[String]]
-                val listModel = headerFlagsList.getModel()
-                val selectedMsgs = 
-                    for ((mask, msg) <- commonHeaderFlags if (mask & headerFlags) == mask)
-                        yield msg
-                val selectIndexes =
-                    for (i <- 0 until listModel.getSize() if selectedMsgs.contains(listModel.getElementAt(i))) 
-                        yield i
-                headerFlagsList.setSelectedIndices(selectIndexes.toArray)
+
+                setListFromFlagNum(headerInputs(7).asInstanceOf[JList[String]], commonHeaderFlags, headerFlags)
+
+
+    def setListFromFlagNum(list: JList[String], listTemplateValues: Array[(Int, String)], flagNum: Int): Unit =
+        val listModel = list.getModel()
+        val selectedMsgs = 
+            for ((mask, msg) <- listTemplateValues if (mask & flagNum) == mask)
+                yield msg
+        val selectedIndexes =
+            for (i <- 0 until listModel.getSize() if selectedMsgs.contains(listModel.getElementAt(i))) 
+                yield i
+        list.setSelectedIndices(selectedIndexes.toArray)
+
 
     def load(profileData: ProfileData): Unit =
         profileData match
@@ -694,15 +550,7 @@ class ProfileFrame {
                 critterStatsPanel1Inputs(3).asInstanceOf[JTextField].setText(aiPacket.toString)
                 critterStatsPanel1Inputs(4).asInstanceOf[JTextField].setText(teamNum.toString)
 
-                val critterFlagsList = critterStatsPanel2Inputs(0).asInstanceOf[JList[String]]
-                val critterListModel = critterFlagsList.getModel()
-                val selectedCritterMsgs = 
-                    for ((mask, msg) <- commonHeaderFlags if (mask & critterFlags) == mask)
-                        yield msg
-                val selectCritterIndexes =
-                    for (i <- 0 until critterListModel.getSize() if selectedCritterMsgs.contains(critterListModel.getElementAt(i))) 
-                        yield i
-                critterFlagsList.setSelectedIndices(selectCritterIndexes.toArray)
+                setListFromFlagNum(critterStatsPanel2.inputs(0).asInstanceOf[JList[String]], commonHeaderFlags, critterFlags)
 
                 critterStatsPanel3Inputs(0).asInstanceOf[JComboBox[String]].setSelectedItem(bodyTypeNames(bodyType))
                 critterStatsPanel3Inputs(1).asInstanceOf[JTextField].setText(expVal.toString)
@@ -822,23 +670,8 @@ class ProfileFrame {
             ) => 
                 loadCommon(commonHeader)
 
-                val wallLightListModel = wallLightTypeFlagList.getModel()
-                val selectedWallLightMsgs = 
-                    for ((mask, msg) <- wallLightTypeFlagValues if (mask & wallLightTypeFlags) == mask)
-                        yield msg
-                val selectWallLightIndexes =
-                    for (i <- 0 until wallLightListModel.getSize() if selectedWallLightMsgs.contains(wallLightListModel.getElementAt(i))) 
-                        yield i
-                wallLightTypeFlagList.setSelectedIndices(selectWallLightIndexes.toArray)
-
-                val actionFlagListModel = actionFlagList.getModel()
-                val selectedActionMsgs = 
-                    for ((mask, msg) <- actionFlagValues if (mask & actionFlags) == mask)
-                        yield msg
-                val selectActionIndexes =
-                    for (i <- 0 until actionFlagListModel.getSize() if selectedActionMsgs.contains(actionFlagListModel.getElementAt(i))) 
-                        yield i
-                actionFlagList.setSelectedIndices(selectActionIndexes.toArray)
+                setListFromFlagNum(wallLightTypeFlagList, wallLightTypeFlagValues, wallLightTypeFlags)
+                setListFromFlagNum(actionFlagList, actionFlagValues, actionFlags)
 
                 sceneryCommonIdPanel.inputs(0).asInstanceOf[JTextField].setText(scriptType.toString)
                 sceneryCommonIdPanel.inputs(1).asInstanceOf[JTextField].setText(((possiblePartOfScriptId << 16) | scriptId).toString)
@@ -881,23 +714,8 @@ class ProfileFrame {
             ) => 
                 loadCommon(commonHeader)
 
-                val wallLightListModel = wallsWallLightTypeFlagList.getModel()
-                val selectedWallLightMsgs = 
-                    for ((mask, msg) <- wallLightTypeFlagValues if (mask & lightTypeFlags) == mask)
-                        yield msg
-                val selectWallLightIndexes =
-                    for (i <- 0 until wallLightListModel.getSize() if selectedWallLightMsgs.contains(wallLightListModel.getElementAt(i))) 
-                        yield i
-                wallsWallLightTypeFlagList.setSelectedIndices(selectWallLightIndexes.toArray)
-
-                val wallActionFlagListModel = wallActionFlagList.getModel()
-                val selectedWallActionMsgs = 
-                    for ((mask, msg) <- actionFlagValues if (mask & actionFlags) == mask)
-                        yield msg
-                val selectWallActionIndexes =
-                    for (i <- 0 until wallActionFlagListModel.getSize() if selectedWallActionMsgs.contains(wallActionFlagListModel.getElementAt(i))) 
-                        yield i
-                wallActionFlagList.setSelectedIndices(selectWallActionIndexes.toArray)
+                setListFromFlagNum(wallsWallLightTypeFlagList, wallLightTypeFlagValues, lightTypeFlags)
+                setListFromFlagNum(wallActionFlagList, actionFlagValues, actionFlags)
 
                 wallsPanel2.inputs(0).asInstanceOf[JTextField].setText(scriptType.toString)
                 wallsPanel2.inputs(1).asInstanceOf[JTextField].setText(((possiblePartOfScriptId << 16) | scriptId).toString)
