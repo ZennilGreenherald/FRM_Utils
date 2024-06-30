@@ -1,9 +1,20 @@
 import javax.swing.*
 import javax.swing.border.*
 import java.awt.*
+import java.awt.dnd.*
+import java.awt.datatransfer.DataFlavor
 import java.awt.event.*
 
+import java.io.File
+
 import FlagsAndEnums.*
+
+// TODOs:
+// * a reload option
+// * open recent files feature
+// 'skills' tab, rename to 'bonuses to skills' or 'skill bonuses' or use quantum's FO2 calculations
+// make it save!!!
+// then post about it at https://www.nma-fallout.com/forums/fallout-general-modding.18/
 
 object HeaderInputs {
     val objectTypeCombo = new JComboBox(objectTypeNames)
@@ -146,6 +157,15 @@ object ItemAmmoInputs {
     ).map(s => (s, new JTextField()))
 }
 
+object ItemMiscInputs {
+    val fieldNames = Seq("Power PID", "Power Type", "Charges")    
+    val fieldPairs = fieldNames.map(s => (s, new JTextField()))
+}
+
+object ItemKeyInputs {
+    val fieldPairs = Seq((("Key Code"), new JTextField()))
+}
+
 object CritterInputs {
     val dtAndDrNames = Seq(
         "DT Normal",
@@ -235,6 +255,10 @@ object CritterInputs {
         "Outdoorsman (0-300)"
     )
     val skillPairs = skillNames.map(s => (s, new JTextField()))
+
+    val ageAndGenderNames = Seq("Age", "Gender")
+    val ageAndGenderPairs = ageAndGenderNames.map(s => (s, new JTextField()))
+    val ageAndGenderBonusPairs = ageAndGenderNames.map(s => (s, new JTextField()))
 }
 
 object SceneryInputs {
@@ -316,6 +340,15 @@ object WallsInputs {
     )
 }
 
+object TilesInputs {
+    val tilesMaterialsCombo = new JComboBox(materialNames)
+    val fieldPairs = Seq(("Material ID", tilesMaterialsCombo))
+}
+
+object MiscInputs {
+    val fieldPairs = Seq((("Unknown"), new JTextField()))
+}
+
 
 class ProfileFrame {
 
@@ -326,9 +359,8 @@ class ProfileFrame {
     val itemDrugPanel      = fieldPanelFactory(ItemDrugInputs.fieldPairs)
     val itemWeaponPanel    = fieldPanelFactory(ItemWeaponInputs.fieldPairs)
     val itemAmmoPanel      = fieldPanelFactory(ItemAmmoInputs.fieldPairs)
-
-    val itemMiscPanel = NamedFieldPanel(Seq("Power PID", "Power Type", "Charges"))
-    val itemKeyPanel  = NamedFieldPanel(Seq("Key Code"))
+    val itemMiscPanel      = fieldPanelFactory(ItemMiscInputs.fieldPairs)
+    val itemKeyPanel       = fieldPanelFactory(ItemKeyInputs.fieldPairs)
 
     val itemSubtypePanel = new SwitchablePanel(Seq(
         ("Armor", itemArmorPanel),
@@ -352,8 +384,8 @@ class ProfileFrame {
         new LabeledPanel("Bonuses",     fieldPanelFactory(CritterInputs.bonusStatPairs))
     )
 
-    val baseAgePanel = NamedFieldPanel(Seq("Age", "Gender"))
-    val bonusAgePanel = NamedFieldPanel(Seq("Age", "Gender"))
+    val baseAgePanel  = fieldPanelFactory(CritterInputs.ageAndGenderPairs)
+    val bonusAgePanel = fieldPanelFactory(CritterInputs.ageAndGenderBonusPairs)
     val ageAndGenderPanels = DoubleColumnPanel(
         new LabeledPanel("Base Values", baseAgePanel), 
         new LabeledPanel("Bonuses",    bonusAgePanel)
@@ -380,11 +412,8 @@ class ProfileFrame {
     ))
 
     val wallsPanel = fieldPanelFactory(WallsInputs.fieldPairs)
-
-    val tilesMaterialsCombo = new JComboBox(materialNames)
-    val tilesPanel = NamedFieldPanel(Seq(("Material ID", tilesMaterialsCombo)))
-
-    val miscPanel = NamedFieldPanel(Seq("Unknown"))
+    val tilesPanel = fieldPanelFactory(TilesInputs.fieldPairs)
+    val miscPanel  = fieldPanelFactory(MiscInputs.fieldPairs)
 
     val itemPanel = new TopPanel(itemCommonPanel, itemSubtypePanel)
     ItemInputs.itemSubtypeCombo.addActionListener(e => {
@@ -400,7 +429,7 @@ class ProfileFrame {
 
     val critterPanel = new JTabbedPane()
     critterPanel.addTab("Stats", null, critterStatsPanel, "Stats")
-    critterPanel.addTab("Skills", null, critterSkillsPanel, "Skills")
+    critterPanel.addTab("Bonuses to Skills", null, critterSkillsPanel, "Skills")
     critterPanel.addTab("Age & Gender", null, ageAndGenderPanels, "Age & Gender")
     critterPanel.addTab("Primary Stats", null, primaryStatsPanels, "Primary Stats")
     critterPanel.addTab("DT and DR", null, dtAndDrPanels, "DT and DR")
@@ -435,16 +464,38 @@ class ProfileFrame {
 
     val menuItem = new JMenuItem("Open", KeyEvent.VK_O)
     menuItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_O, ActionEvent.CTRL_MASK))
+
+    var previouslyOpenedFile: File = null
+
     menuItem.addActionListener(event => {
         if (event.getActionCommand() == "Open")
-            val fc = new JFileChooser()
+            val fc = new JFileChooser(previouslyOpenedFile)
             val returnVal = fc.showOpenDialog(frame)
             if (returnVal == JFileChooser.APPROVE_OPTION)
-                Option(fc.getSelectedFile()).foreach(f => load(Profiler.parseFile(f.toPath)))
+                Option(fc.getSelectedFile()).foreach(f => 
+                    previouslyOpenedFile = f
+                    load(Profiler.parseFile(f.toPath))
+                )
     })
     menu.add(menuItem)
 
     frame.setJMenuBar(menuBar)
+    frame.setDropTarget(new DropTarget() {
+        override def drop(event: DropTargetDropEvent): Unit =
+            try
+                event.acceptDrop(DnDConstants.ACTION_COPY)
+                val droppedFiles = event.getTransferable().getTransferData(DataFlavor.javaFileListFlavor)
+
+                import collection.JavaConverters.collectionAsScalaIterableConverter
+                val fileSeq = droppedFiles.asInstanceOf[java.util.List[File]].asScala // .toSeq()
+
+                fileSeq.headOption.foreach(f => 
+                    load(Profiler.parseFile(f.toPath))
+                )
+                event.dropComplete(true)
+            catch
+                case ex: Exception => ex.printStackTrace()
+    })
     frame.getContentPane().add(mainPanel)
     frame.pack()
     frame.setVisible(true)
@@ -461,7 +512,6 @@ class ProfileFrame {
                 lightIntensity,
                 headerFlags
             ) =>
-                // val headerInputs = headerStatsPanel.inputs
                 val headerInputs = HeaderInputs.fieldPairs.map(_._2)
                 headerInputs(0).asInstanceOf[JComboBox[String]].setSelectedItem(objectTypeNames(objType))
                 headerInputs(1).asInstanceOf[JTextField].setText(((possiblePartOfObjId << 16) | objId).toString)
@@ -543,10 +593,10 @@ class ProfileFrame {
                     case (num, index) => critterSkillInputs(index).asInstanceOf[JTextField].setText(num.toString)
                 }
 
-                baseAgePanel.inputs(0).asInstanceOf[JTextField].setText(age.toString)
-                baseAgePanel.inputs(1).asInstanceOf[JTextField].setText(sex.toString)
-                bonusAgePanel.inputs(0).asInstanceOf[JTextField].setText(ageBonus.toString)
-                bonusAgePanel.inputs(1).asInstanceOf[JTextField].setText(sexBonus.toString)
+                CritterInputs.ageAndGenderPairs(0)(1).asInstanceOf[JTextField].setText(age.toString)
+                CritterInputs.ageAndGenderPairs(1)(1).asInstanceOf[JTextField].setText(sex.toString)
+                CritterInputs.ageAndGenderBonusPairs(0)(1).asInstanceOf[JTextField].setText(ageBonus.toString)
+                CritterInputs.ageAndGenderBonusPairs(1)(1).asInstanceOf[JTextField].setText(sexBonus.toString)
 
                 primaryStats.zipWithIndex.foreach{
                     case (num, index) => CritterInputs.baseStatPairs(index)(1).asInstanceOf[JTextField].setText(num.toString)
@@ -632,12 +682,12 @@ class ProfileFrame {
                         }
 
                     case ItemMiscFields (data) =>
-                        data.zip(itemMiscPanel.inputs).map{
-                            case (num, field) => field.asInstanceOf[JTextField].setText(num.toString)
+                        data.zip(ItemMiscInputs.fieldPairs).map{
+                            case (num, (_, field)) => field.asInstanceOf[JTextField].setText(num.toString)
                         }
 
                     case KeyFields      (keyCode) =>
-                        itemKeyPanel.inputs(0).asInstanceOf[JTextField].setText(keyCode.toString)
+                        ItemKeyInputs.fieldPairs(0)(0).asInstanceOf[JTextField].setText(keyCode.toString)
 
             case ProfileData(
                 commonHeader,
@@ -710,20 +760,12 @@ class ProfileFrame {
                 WallsInputs.fieldPairs(3)(1).asInstanceOf[JTextField].setText(((possiblePartOfScriptId << 16) | scriptId).toString)
                 WallsInputs.fieldPairs(4)(1).asInstanceOf[JComboBox[String]].setSelectedItem(materialNames(materialId))
 
-            case ProfileData(
-                commonHeader,
-                TilesData(materialId: Int)
-            ) => 
+            case ProfileData(commonHeader, TilesData(materialId: Int)) => 
                 loadCommon(commonHeader)
+                TilesInputs.fieldPairs(0)(1).asInstanceOf[JComboBox[String]].setSelectedItem(materialNames(materialId))
 
-                tilesPanel.inputs(0).asInstanceOf[JComboBox[String]].setSelectedItem(materialNames(materialId))
-
-            case ProfileData(
-                commonHeader,
-                MiscData(unknown: Int)
-            ) => 
+            case ProfileData(commonHeader, MiscData(unknown: Int)) => 
                 loadCommon(commonHeader)
-
-                miscPanel.inputs(0).asInstanceOf[JTextField].setText(unknown.toString)
+                MiscInputs.fieldPairs(0)(1).asInstanceOf[JTextField].setText(unknown.toString)
 
 }

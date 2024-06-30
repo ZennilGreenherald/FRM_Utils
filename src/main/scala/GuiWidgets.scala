@@ -34,24 +34,6 @@ def fieldPanelFactory(fields: Seq[(String, Component)]): JPanel =
     outer
 
 
-class NamedFieldPanel(fields: Seq[String | (String, Component)]) extends JPanel {
-
-    setLayout(new GridLayout(0, 2))
-    setBorder(BorderFactory.createEmptyBorder(8, 8, 8, 8))
-
-    val inputs = fields.map{ 
-        case text: String =>
-            add(new JLabel(text))
-            val textField = new JTextField(8)
-            add(textField)
-            textField
-        case (text, component) =>
-            add(new JLabel(text))
-            add(component)
-            component
-    }
-}
-
 class TopPanel(c: Component, nextC: Component = null) extends JPanel {
     setLayout(new BorderLayout())
     add(c, BorderLayout.NORTH)
