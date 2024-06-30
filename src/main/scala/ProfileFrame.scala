@@ -12,7 +12,7 @@ import FlagsAndEnums.*
 // TODOs:
 // * a reload option
 // * open recent files feature
-// 'skills' tab, rename to 'bonuses to skills' or 'skill bonuses' or use quantum's FO2 calculations
+// 'skills' tab, use quantum's FO2 calculations
 // make it save!!!
 // then post about it at https://www.nma-fallout.com/forums/fallout-general-modding.18/
 
