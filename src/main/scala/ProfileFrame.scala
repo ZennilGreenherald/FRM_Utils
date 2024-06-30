@@ -260,6 +260,38 @@ object SceneryInputs {
     )
 }
 
+object SceneryDoorInputs {
+
+    val walkThruFlagCheckbox = new JCheckBox("yes")
+    val doorUnknownCombo     = new JComboBox(doorUnknownValues.map(_._2))
+
+    val fieldPairs = Seq(
+        ("WalkThru Flag", walkThruFlagCheckbox),
+        ("Unknown", doorUnknownCombo)
+    )
+}
+
+object WallsInputs {
+
+    val wallLightTypeFlagList = new JList(wallLightTypeFlagValues.map(_._2))
+    wallLightTypeFlagList.setSelectionMode(ListSelectionModel.MULTIPLE_INTERVAL_SELECTION)
+    wallLightTypeFlagList.setLayoutOrientation(JList.VERTICAL)
+
+    val actionFlagsList = new JList(actionFlagValues.map(_._2))
+    actionFlagsList.setSelectionMode(ListSelectionModel.MULTIPLE_INTERVAL_SELECTION)
+    actionFlagsList.setLayoutOrientation(JList.VERTICAL)
+
+    val materialsCombo = new JComboBox(materialNames)
+
+    val fieldPairs = Seq(
+        ("Wall Light Type Flags", wallLightTypeFlagList),
+        ("ActionFlags", actionFlagsList),
+        ("Script Type", new JTextField()),
+        ("Script ID", new JTextField()),
+        ("Material ID", materialsCombo)
+    )
+}
+
 
 class ProfileFrame {
 
@@ -307,15 +339,7 @@ class ProfileFrame {
     val critterSkillsPanel = fieldPanelFactory(CritterInputs.skillPairs)
     val sceneryCommonPanel = fieldPanelFactory(SceneryInputs.fieldPairs)
 
-    val walkThruFlagCheckbox = new JCheckBox("yes")
-
-    val doorUnknownCombo = new JComboBox(doorUnknownValues.map(_._2))
-    val sceneryGenericCombo = new JComboBox(doorUnknownValues.map(_._2))
-
-    val sceneryDoorPanel = NamedFieldPanel(Seq(
-        ("WalkThru Flag", walkThruFlagCheckbox),
-        ("Unknown", doorUnknownCombo)
-    ))
+    val sceneryDoorPanel = fieldPanelFactory(SceneryDoorInputs.fieldPairs)
 
     val sceneryStairsPanel = NamedFieldPanel(Seq("Dest Elev", "Dest Tile", "Dest Map"))
 
@@ -325,6 +349,7 @@ class ProfileFrame {
 
     val sceneryLadderTopPanel = NamedFieldPanel(Seq("Dest Tile", "Dest Elev"))
 
+    val sceneryGenericCombo = new JComboBox(doorUnknownValues.map(_._2))
     val sceneryGenericPanel = NamedFieldPanel(Seq(("Unknown", sceneryGenericCombo)))
 
     val scenerySubtypePanel = new SwitchablePanel(Seq(
@@ -336,37 +361,14 @@ class ProfileFrame {
         ("Generic", sceneryGenericPanel),
     ))
 
-    val wallsWallLightTypeFlagList = new JList(wallLightTypeFlagValues.map(_._2))
-    wallsWallLightTypeFlagList.setSelectionMode(ListSelectionModel.MULTIPLE_INTERVAL_SELECTION)
-    wallsWallLightTypeFlagList.setLayoutOrientation(JList.VERTICAL)
-
-    val wallsMaterialsCombo = new JComboBox(materialNames)
-
-    val wallActionFlagList = new JList(actionFlagValues.map(_._2))
-    wallActionFlagList.setSelectionMode(ListSelectionModel.MULTIPLE_INTERVAL_SELECTION)
-    wallActionFlagList.setLayoutOrientation(JList.VERTICAL)
-
-    val wallLightTypePanel = NamedFieldPanel(Seq(("Wall Light Type Flags", wallsWallLightTypeFlagList)))
-    val wallActionPanel    = NamedFieldPanel(Seq(("ActionFlags", wallActionFlagList)))
-
-    val wallsPanel1 = new TopPanel(wallLightTypePanel, wallActionPanel)
-
-    val wallsPanel2 = NamedFieldPanel(Seq(
-        "Script Type", 
-        "Script ID", 
-        ("Material ID", wallsMaterialsCombo)
-    ))
-
-    val wallsPanel = new TopPanel(wallsPanel1, wallsPanel2)
+    val wallsPanel = fieldPanelFactory(WallsInputs.fieldPairs)
 
     val tilesMaterialsCombo = new JComboBox(materialNames)
     val tilesPanel = NamedFieldPanel(Seq(("Material ID", tilesMaterialsCombo)))
 
     val miscPanel = NamedFieldPanel(Seq("Unknown"))
 
-    val itemPanel = new JPanel(new BorderLayout())
-    itemPanel.add(itemCommonPanel, BorderLayout.NORTH)
-    itemPanel.add(itemSubtypePanel)
+    val itemPanel = new TopPanel(itemCommonPanel, itemSubtypePanel)
     ItemInputs.itemSubtypeCombo.addActionListener(e => {
         itemSubtypePanel.selectRadio(itemSubtypeNames.indexOf(ItemInputs.itemSubtypeCombo.getSelectedItem().asInstanceOf[String]))
     })
@@ -379,9 +381,9 @@ class ProfileFrame {
     })
 
     val critterPanel = new JTabbedPane()
-    critterPanel.addTab("Stats", null, new TopPanel(critterStatsPanel), "Stats")
+    critterPanel.addTab("Stats", null, critterStatsPanel, "Stats")
     critterPanel.addTab("Skills", null, critterSkillsPanel, "Skills")
-    critterPanel.addTab("Age & Gender", null, new TopPanel(ageAndGenderPanels), "Age & Gender")
+    critterPanel.addTab("Age & Gender", null, ageAndGenderPanels, "Age & Gender")
     critterPanel.addTab("Primary Stats", null, primaryStatsPanels, "Primary Stats")
     critterPanel.addTab("DT and DR", null, dtAndDrPanels, "DT and DR")
 
@@ -649,10 +651,10 @@ class ProfileFrame {
 
                 scenerySubtypeData match
                     case Door(walkThruFlagValue: Int, unknown: Int) =>
-                        walkThruFlagCheckbox.setSelected((walkThruFlagValue & walkThruFlag) == walkThruFlag)
+                        SceneryDoorInputs.walkThruFlagCheckbox.setSelected((walkThruFlagValue & walkThruFlag) == walkThruFlag)
                         for ((num, label) <- doorUnknownValues)
                             if (num == unknown)
-                                doorUnknownCombo.setSelectedItem(label)
+                                SceneryDoorInputs.doorUnknownCombo.setSelectedItem(label)
 
                     case Stairs(data: Array[Int]) =>
                         data.zip(sceneryStairsPanel.inputs).map{
@@ -683,12 +685,12 @@ class ProfileFrame {
             ) => 
                 loadCommon(commonHeader)
 
-                setListFromFlagNum(wallsWallLightTypeFlagList, wallLightTypeFlagValues, lightTypeFlags)
-                setListFromFlagNum(wallActionFlagList, actionFlagValues, actionFlags)
+                setListFromFlagNum(WallsInputs.wallLightTypeFlagList, wallLightTypeFlagValues, lightTypeFlags)
+                setListFromFlagNum(WallsInputs.actionFlagsList, actionFlagValues, actionFlags)
 
-                wallsPanel2.inputs(0).asInstanceOf[JTextField].setText(scriptType.toString)
-                wallsPanel2.inputs(1).asInstanceOf[JTextField].setText(((possiblePartOfScriptId << 16) | scriptId).toString)
-                wallsPanel2.inputs(2).asInstanceOf[JComboBox[String]].setSelectedItem(materialNames(materialId))
+                WallsInputs.fieldPairs(2)(1).asInstanceOf[JTextField].setText(scriptType.toString)
+                WallsInputs.fieldPairs(3)(1).asInstanceOf[JTextField].setText(((possiblePartOfScriptId << 16) | scriptId).toString)
+                WallsInputs.fieldPairs(4)(1).asInstanceOf[JComboBox[String]].setSelectedItem(materialNames(materialId))
 
             case ProfileData(
                 commonHeader,
