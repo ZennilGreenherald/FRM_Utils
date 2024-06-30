@@ -140,23 +140,5 @@ object FlagsAndEnums {
         "Cement",
         "Leather"
     )
-    val dtAndDrNames = Seq(
-        "DT Normal",
-        "DT Laser",
-        "DT Fire",
-        "DT Plasma",
-        "DT Electrical",
-        "DT EMP",
-        "DT Explosive",
-        "DR Normal",
-        "DR Laser",
-        "DR Fire",
-        "DR Plasma",
-        "DR Electrical",
-        "DR EMP",
-        "DR Explosive",
-        "DR Radiation",
-        "DR Poison",
-    )
     val bodyTypeNames = Array("biped", "quadruped", "robotic")
 }

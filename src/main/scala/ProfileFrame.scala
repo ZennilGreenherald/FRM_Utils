@@ -49,138 +49,227 @@ object ItemInputs {
         ("Inv FID", new JTextField()),
         ("Sound Id", new JTextField())
     )
-
 }
 
-class ProfileFrame {
+object ItemArmorInputs {
+    val fieldPairs = Seq(
+        "AC", 
 
-    val headerFieldPanel = namedFieldPanelFactory(HeaderInputs.fieldPairs)
+        "DR Normal", 
+        "DR Laser", 
+        "DR Fire", 
+        "DR Plasma", 
+        "DR Electrical", 
+        "DR EMP", 
+        "DR Explosion", 
 
-    // val itemCommonPanel = new JPanel(new BorderLayout)
-    // val itemCommonPanel1 = NamedFieldPanel(
-    //     Seq(
-    //         ("Item Flag", itemFlags(0)(1)), 
-    //         ("Action Flags", actionPanel), 
-    //     )
-    // )
+        "DT Normal", 
+        "DT Laser", 
+        "DT Fire", 
+        "DT Plasma", 
+        "DT Electrical", 
+        "DT EMP", 
+        "DT Explosion", 
 
-    // val attackModeCombo1 = new JComboBox(attackModeNames)
-    // val attackModeCombo2 = new JComboBox(attackModeNames)
+        "Perk", 
+        "Male FID", 
+        "Female FID"
+    ).map(s => (s, new JTextField()))
+}
 
-    // val itemCommonPanel2 = NamedFieldPanel(
-    //     Seq(
-    //         "Weapon Flags", 
-    //         ("Attack Mode 1", attackModeCombo1), 
-    //         ("Attack Mode 2", attackModeCombo2), 
-    //         "Script Id", 
-    //         ("Object Subtype", itemSubtypeCombo), 
-    //         "Material Id", 
-    //         "Size", 
-    //         "Weight", 
-    //         "Cost", 
-    //         "Inv FID", 
-    //         "Sound Id"
-    //     )
-    // )
-    // itemCommonPanel.add(itemCommonPanel1, BorderLayout.NORTH)
-    // itemCommonPanel.add(itemCommonPanel2)
-    val itemCommonPanel = namedFieldPanelFactory(ItemInputs.fieldPairs)
-
-    val itemArmorPanel = NamedFieldPanel(
-        Seq(
-            "AC", 
-
-            "DR Normal", 
-            "DR Laser", 
-            "DR Fire", 
-            "DR Plasma", 
-            "DR Electrical", 
-            "DR EMP", 
-            "DR Explosion", 
-
-            "DT Normal", 
-            "DT Laser", 
-            "DT Fire", 
-            "DT Plasma", 
-            "DT Electrical", 
-            "DT EMP", 
-            "DT Explosion", 
-
-            "Perk", 
-            "Male FID", 
-            "Female FID"
-        )
-    )
-
+object ItemContainerInputs {
     val openFlagPanel = new JPanel()
     openFlagPanel.setBorder(BorderFactory.createEmptyBorder())
     openFlags.foreach(a => openFlagPanel.add(a._2))
 
-    val itemContainerPanel = NamedFieldPanel(
-        Seq(
-            "Max Size",
-            ("Open Flags", openFlagPanel)
-        )
+    val fieldPairs: Seq[(String, JComponent)] = Seq(
+        ("Max Size", new JTextField()),
+        ("Open Flags", openFlagPanel)
     )
+}
 
-    val itemDrugPanel = NamedFieldPanel(
-        Seq(
-            "Stat0", 
-            "Stat1", 
-            "Stat2", 
-            "Amount0", 
-            "Amount1", 
-            "Amount2", 
-            "Duration1", 
-            "Amount0", 
-            "Amount1", 
-            "Amount2", 
-            "Duration2", 
-            "Amount0", 
-            "Amount1", 
-            "Amount2", 
-            "Addiction Rate", 
-            "Addiction Effect", 
-            "Addiction Onset"
-        )
-    )
+object ItemDrugInputs {
+    val fieldPairs = Seq(
+        "Stat0", 
+        "Stat1", 
+        "Stat2", 
+        "Amount0", 
+        "Amount1", 
+        "Amount2", 
+        "Duration1", 
+        "Amount0", 
+        "Amount1", 
+        "Amount2", 
+        "Duration2", 
+        "Amount0", 
+        "Amount1", 
+        "Amount2", 
+        "Addiction Rate", 
+        "Addiction Effect", 
+        "Addiction Onset"
+    ).map(s => (s, new JTextField()))
+}
 
+object ItemWeaponInputs {
     val weaponAnimCodeCombo = new JComboBox(weaponAnimCodeNames)
-
     val weaponDamageTypeCombo = new JComboBox(damageTypeNames)
 
-    val itemWeaponPanel = NamedFieldPanel(
-        Seq(
-            ("Anim Code", weaponAnimCodeCombo), 
-            "Min Damage", 
-            "Max Damage", 
-            ("Damage Type", weaponDamageTypeCombo), 
-            "Max Range 1", 
-            "Max Range 2", 
-            "Proj PID", 
-            "Min ST", 
-            "AP Cost 1", 
-            "MP Cost 2", 
-            "Crit Fail", 
-            "Perk", 
-            "Rounds", 
-            "Caliber", 
-            "Ammo PID", 
-            "Max Ammo", 
-            "Sound Id", 
-        )
+    val fieldPairs: Seq[(String, JComponent)] = Seq(
+        ("Anim Code", weaponAnimCodeCombo), 
+        ("Min Damage", new JTextField()), 
+        ("Max Damage", new JTextField()), 
+        ("Damage Type", weaponDamageTypeCombo), 
+        ("Max Range 1", new JTextField()), 
+        ("Max Range 2", new JTextField()), 
+        ("Proj PID", new JTextField()), 
+        ("Min ST", new JTextField()), 
+        ("AP Cost 1", new JTextField()), 
+        ("MP Cost 2", new JTextField()), 
+        ("Crit Fail", new JTextField()), 
+        ("Perk", new JTextField()), 
+        ("Rounds", new JTextField()), 
+        ("Caliber", new JTextField()), 
+        ("Ammo PID", new JTextField()), 
+        ("Max Ammo", new JTextField()), 
+        ("Sound Id", new JTextField())
+    )    
+}
+
+object ItemAmmoInputs {
+    val fieldPairs = Seq(
+        "Caliber", 
+        "Quantity", 
+        "AC modifier", 
+        "DC Modifier", 
+        "Damage Mult", 
+        "Damage Div"
+    ).map(s => (s, new JTextField()))
+}
+
+object CritterInputs {
+    val dtAndDrNames = Seq(
+        "DT Normal",
+        "DT Laser",
+        "DT Fire",
+        "DT Plasma",
+        "DT Electrical",
+        "DT EMP",
+        "DT Explosive",
+        "DR Normal",
+        "DR Laser",
+        "DR Fire",
+        "DR Plasma",
+        "DR Electrical",
+        "DR EMP",
+        "DR Explosive",
+        "DR Radiation",
+        "DR Poison",
+    )
+    val baseDtPairs  = dtAndDrNames.map(s => (s, new JTextField()))
+    val bonusDtPairs = dtAndDrNames.map(s => (s, new JTextField()))
+
+    val statNames = Seq(
+        "Strength (1-10)",
+        "Perception (1-10)",
+        "Endurance (1-10)",
+        "Charisma (1-10)",
+        "Intelligence (1-10)",
+        "Agility (1-10)",
+        "Luck (1-10)",
+        "HP",
+        "AP",
+        "AC",
+        "Unarmed damage (Unused)",
+        "Melee damage",
+        "Carry weight (0-999)",
+        "Sequence",
+        "Healing rate",
+        "Critical chance",
+        "Better criticals"
+    )
+    val baseStatPairs  = statNames.map(s => (s, new JTextField()))
+    val bonusStatPairs = statNames.map(s => (s, new JTextField()))
+
+    val critterActionFlagValues = Array("0x00002000", "0x00004000")
+    val critterActionFlagCombo = new JComboBox(critterActionFlagValues)
+
+    val critterFlagsList = new JList(critterFlags.map(_._2))
+    critterFlagsList.setSelectionMode(ListSelectionModel.MULTIPLE_INTERVAL_SELECTION)
+    critterFlagsList.setLayoutOrientation(JList.VERTICAL)
+
+    val bodyTypeCombo = new JComboBox(bodyTypeNames)
+    val killTypeCombo = new JComboBox(killTypeNames)
+    val critterDamageTypeCombo = new JComboBox(damageTypeNames)
+
+    val descPairs = Seq(
+        ("ActionFlags", critterActionFlagCombo), 
+        ("Script ID", new JTextField()),
+        ("Head FID", new JTextField()),
+        ("AI Packet", new JTextField()),
+        ("Team Num", new JTextField()),
+        ("Critter Flags", critterFlagsList), 
+        ("Body Type", bodyTypeCombo), 
+        ("Exp Val", new JTextField()),
+        ("Kill Type", killTypeCombo), 
+        ("Damage Type", critterDamageTypeCombo)
     )
 
-    val itemAmmoPanel = NamedFieldPanel(
-        Seq(
-            "Caliber", 
-            "Quantity", 
-            "AC modifier", 
-            "DC Modifier", 
-            "Damage Mult", 
-            "Damage Div"
-        )
+    val skillNames = Seq(
+        "Small guns (0-300)",
+        "Big guns (0-300)",
+        "Energy weapons (0-300)",
+        "Unarmed (0-300)",
+        "Melee (0-300)",
+        "Throwing (0-300)",
+        "First aid (0-300)",
+        "Doctor (0-300)",
+        "Sneak (0-300)",
+        "Lockpick (0-300)",
+        "Steal (0-300)",
+        "Traps (0-300)",
+        "Science (0-300)",
+        "Repair (0-300)",
+        "Speech (0-300)",
+        "Barter (0-300)",
+        "Gambling (0-300)",
+        "Outdoorsman (0-300)"
     )
+    val skillPairs = skillNames.map(s => (s, new JTextField()))
+}
+
+object SceneryInputs {
+    val wallLightTypeFlagList = new JList(wallLightTypeFlagValues.map(_._2))
+    wallLightTypeFlagList.setSelectionMode(ListSelectionModel.MULTIPLE_INTERVAL_SELECTION)
+    wallLightTypeFlagList.setLayoutOrientation(JList.VERTICAL)
+
+    val actionFlagList = new JList(actionFlagValues.map(_._2))
+    actionFlagList.setSelectionMode(ListSelectionModel.MULTIPLE_INTERVAL_SELECTION)
+    actionFlagList.setLayoutOrientation(JList.VERTICAL)
+
+    val scenerySubtypeCombo = new JComboBox(scenerySubtypeNames)
+    val materialsCombo      = new JComboBox(materialNames)
+
+    val fieldPairs = Seq(
+        ("Wall Light Type Flags", wallLightTypeFlagList),
+        ("Action Flags", actionFlagList),
+        ("Script Type", new JTextField()),
+        ("Script ID", new JTextField()),
+        ("Scenery Subtype", scenerySubtypeCombo), 
+        ("Material ID", materialsCombo), 
+        ("Sound ID", new JTextField())
+    )
+}
+
+
+class ProfileFrame {
+
+    val headerFieldPanel   = fieldPanelFactory(HeaderInputs.fieldPairs)
+    val itemCommonPanel    = fieldPanelFactory(ItemInputs.fieldPairs)
+    val itemArmorPanel     = fieldPanelFactory(ItemArmorInputs.fieldPairs)
+    val itemContainerPanel = fieldPanelFactory(ItemContainerInputs.fieldPairs)
+    val itemDrugPanel      = fieldPanelFactory(ItemDrugInputs.fieldPairs)
+    val itemWeaponPanel    = fieldPanelFactory(ItemWeaponInputs.fieldPairs)
+    val itemAmmoPanel      = fieldPanelFactory(ItemAmmoInputs.fieldPairs)
 
     val itemMiscPanel = NamedFieldPanel(Seq("Power PID", "Power Type", "Charges"))
     val itemKeyPanel  = NamedFieldPanel(Seq("Key Code"))
@@ -195,161 +284,28 @@ class ProfileFrame {
         ("Key", itemKeyPanel),
     ))
 
-    val baseDts = NamedFieldPanel(dtAndDrNames)
-    val bonusDts = NamedFieldPanel(dtAndDrNames)
+    val baseDts = fieldPanelFactory(CritterInputs.baseDtPairs)
+    val bonusDts = fieldPanelFactory(CritterInputs.bonusDtPairs)
     val dtAndDrPanels = DoubleColumnPanel(
         new LabeledPanel("Base Values", baseDts),
         new LabeledPanel("Bonuses", bonusDts)
     )
 
-    val baseValsPanel = 
-        NamedFieldPanel(Seq(
-            "Strength", 
-            "Perception", 
-            "Endurance", 
-            "Charisma", 
-            "Intelligence", 
-            "Agility", 
-            "Luck", 
-            "HP", 
-            "AP", 
-            "AC", 
-            "Unarmed Damage (Unused)", 
-            "Melee Damage", 
-            "Carry Weight", 
-            "Sequence", 
-            "Healing Rate", 
-            "Critical Chance", 
-            "Better Criticals"
-        )
-    )
-    val bonusValsPanel =
-        NamedFieldPanel(Seq(
-            "Strength (1-10)",
-            "Perception (1-10)",
-            "Endurance (1-10)",
-            "Charisma (1-10)",
-            "Intelligence (1-10)",
-            "Agility (1-10)",
-            "Luck (1-10)",
-            "HP",
-            "AP",
-            "AC",
-            "Unarmed damage (Unused)",
-            "Melee damage",
-            "Carry weight (0-999)",
-            "Sequence",
-            "Healing rate",
-            "Critical chance",
-            "Better criticals"
-        )
-    )
     val primaryStatsPanels = DoubleColumnPanel(
-        new LabeledPanel("Base Values", baseValsPanel),
-        new LabeledPanel("Bonuses", bonusValsPanel)
+        new LabeledPanel("Base Values", fieldPanelFactory(CritterInputs.baseStatPairs)),
+        new LabeledPanel("Bonuses",     fieldPanelFactory(CritterInputs.bonusStatPairs))
     )
 
     val baseAgePanel = NamedFieldPanel(Seq("Age", "Gender"))
     val bonusAgePanel = NamedFieldPanel(Seq("Age", "Gender"))
-    val ageAndGenderPanels = DoubleColumnPanel(new LabeledPanel("Base Values", baseAgePanel), new LabeledPanel("Bonuses", bonusAgePanel))
-
-    val critterActionFlagValues = Array("0x00002000", "0x00004000")
-    val critterActionFlagCombo = new JComboBox(critterActionFlagValues)
-
-    val bodyTypeCombo = new JComboBox(bodyTypeNames)
-
-    val killTypeCombo = new JComboBox(killTypeNames)
-
-    val critterDamageTypeCombo = new JComboBox(damageTypeNames)
-
-    val critterFlagsList = new JList(critterFlags.map(_._2))
-    critterFlagsList.setSelectionMode(ListSelectionModel.MULTIPLE_INTERVAL_SELECTION)
-    critterFlagsList.setLayoutOrientation(JList.VERTICAL)
-
-    val critterStatsPanel1 = NamedFieldPanel(
-        Seq(
-            ("ActionFlags", critterActionFlagCombo), 
-            "Script ID", 
-            "Head FID", 
-            "AI Packet", 
-            "Team Num", 
-        )
-    )
-    val critterStatsPanel1Inputs = critterStatsPanel1.inputs
-
-    val critterStatsPanel2 = NamedFieldPanel(
-        Seq(
-            ("Critter Flags", critterFlagsList), 
-        )
+    val ageAndGenderPanels = DoubleColumnPanel(
+        new LabeledPanel("Base Values", baseAgePanel), 
+        new LabeledPanel("Bonuses",    bonusAgePanel)
     )
 
-    val critterStatsPanel3 = NamedFieldPanel(
-        Seq(
-            ("Body Type", bodyTypeCombo), 
-            "Exp Val", 
-            ("Kill Type", killTypeCombo), 
-            ("Damage Type", critterDamageTypeCombo)
-        )
-    )
-    val critterStatsPanel3Inputs = critterStatsPanel3.inputs
-
-    val critterStatsPanel = new TopPanel(
-        critterStatsPanel1,
-        new TopPanel(
-            critterStatsPanel2,
-            critterStatsPanel3
-        )
-    )
-
-    val critterSkillsPanel = NamedFieldPanel(
-        Seq(
-            "Small guns (0-300)",
-            "Big guns (0-300)",
-            "Energy weapons (0-300)",
-            "Unarmed (0-300)",
-            "Melee (0-300)",
-            "Throwing (0-300)",
-            "First aid (0-300)",
-            "Doctor (0-300)",
-            "Sneak (0-300)",
-            "Lockpick (0-300)",
-            "Steal (0-300)",
-            "Traps (0-300)",
-            "Science (0-300)",
-            "Repair (0-300)",
-            "Speech (0-300)",
-            "Barter (0-300)",
-            "Gambling (0-300)",
-            "Outdoorsman (0-300)"
-        )
-    )
-
-    val scenerySubtypeCombo = new JComboBox(scenerySubtypeNames)
-
-    val wallLightTypeFlagList = new JList(wallLightTypeFlagValues.map(_._2))
-    wallLightTypeFlagList.setSelectionMode(ListSelectionModel.MULTIPLE_INTERVAL_SELECTION)
-    wallLightTypeFlagList.setLayoutOrientation(JList.VERTICAL)
-
-    val actionFlagList = new JList(actionFlagValues.map(_._2))
-    actionFlagList.setSelectionMode(ListSelectionModel.MULTIPLE_INTERVAL_SELECTION)
-    actionFlagList.setLayoutOrientation(JList.VERTICAL)
-
-    val materialsCombo = new JComboBox(materialNames)
-
-    val sceneryLightPanel = NamedFieldPanel(Seq(("Wall Light Type Flags", wallLightTypeFlagList)))
-    val sceneryActionPanel = NamedFieldPanel(Seq(("Action Flags", actionFlagList)))
-    val sceneryCommonListPanel = new TopPanel(sceneryLightPanel, sceneryActionPanel)
-
-    val sceneryCommonIdPanel = NamedFieldPanel(
-        Seq(
-            "Script Type", 
-            "Script ID", 
-            ("Scenery Subtype", scenerySubtypeCombo), 
-            ("Material ID", materialsCombo), 
-            "Sound ID"
-        )
-    )
-    val sceneryCommonPanel = new TopPanel(sceneryCommonListPanel, sceneryCommonIdPanel)
+    val critterStatsPanel  = fieldPanelFactory(CritterInputs.descPairs)
+    val critterSkillsPanel = fieldPanelFactory(CritterInputs.skillPairs)
+    val sceneryCommonPanel = fieldPanelFactory(SceneryInputs.fieldPairs)
 
     val walkThruFlagCheckbox = new JCheckBox("yes")
 
@@ -418,8 +374,8 @@ class ProfileFrame {
     val sceneryPanel = new JPanel(new BorderLayout())
     sceneryPanel.add(sceneryCommonPanel, BorderLayout.NORTH)
     sceneryPanel.add(scenerySubtypePanel)
-    scenerySubtypeCombo.addActionListener(e => {
-        scenerySubtypePanel.selectRadio(scenerySubtypeNames.indexOf(scenerySubtypeCombo.getSelectedItem().asInstanceOf[String]))
+    SceneryInputs.scenerySubtypeCombo.addActionListener(e => {
+        scenerySubtypePanel.selectRadio(scenerySubtypeNames.indexOf(SceneryInputs.scenerySubtypeCombo.getSelectedItem().asInstanceOf[String]))
     })
 
     val critterPanel = new JTabbedPane()
@@ -546,43 +502,44 @@ class ProfileFrame {
                 loadCommon(commonHeader)
 
                 println(s"loaded flagsExt: $flagsExt")
-                val i = critterActionFlagValues.indexWhere(hexString => Integer.parseInt(hexString.replace("0x", ""), 16) == flagsExt)
+                val i = CritterInputs.critterActionFlagValues.indexWhere(hexString => Integer.parseInt(hexString.replace("0x", ""), 16) == flagsExt)
                 if (i > -1)
-                    critterStatsPanel1Inputs(0).asInstanceOf[JComboBox[String]].setSelectedItem(critterActionFlagValues(i))
+                    CritterInputs.descPairs(0)(1).asInstanceOf[JComboBox[String]].setSelectedItem(CritterInputs.critterActionFlagValues(i))
 
-                critterStatsPanel1Inputs(1).asInstanceOf[JTextField].setText(scriptId.toString)
-                critterStatsPanel1Inputs(2).asInstanceOf[JTextField].setText(headFid.toString)
-                critterStatsPanel1Inputs(3).asInstanceOf[JTextField].setText(aiPacket.toString)
-                critterStatsPanel1Inputs(4).asInstanceOf[JTextField].setText(teamNum.toString)
+                CritterInputs.descPairs(1)(1).asInstanceOf[JTextField].setText(scriptId.toString)
+                CritterInputs.descPairs(2)(1).asInstanceOf[JTextField].setText(headFid.toString)
+                CritterInputs.descPairs(3)(1).asInstanceOf[JTextField].setText(aiPacket.toString)
+                CritterInputs.descPairs(4)(1).asInstanceOf[JTextField].setText(teamNum.toString)
 
-                setListFromFlagNum(critterStatsPanel2.inputs(0).asInstanceOf[JList[String]], commonHeaderFlags, critterFlags)
+                setListFromFlagNum(CritterInputs.descPairs(5)(1).asInstanceOf[JList[String]], commonHeaderFlags, critterFlags)
 
-                critterStatsPanel3Inputs(0).asInstanceOf[JComboBox[String]].setSelectedItem(bodyTypeNames(bodyType))
-                critterStatsPanel3Inputs(1).asInstanceOf[JTextField].setText(expVal.toString)
-                critterStatsPanel3Inputs(2).asInstanceOf[JComboBox[String]].setSelectedItem(killTypeNames(killType))
-                critterStatsPanel3Inputs(3).asInstanceOf[JComboBox[String]].setSelectedItem(damageTypeNames(damageType))
+                CritterInputs.descPairs(6)(1).asInstanceOf[JComboBox[String]].setSelectedItem(bodyTypeNames(bodyType))
+                CritterInputs.descPairs(7)(1).asInstanceOf[JTextField].setText(expVal.toString)
+                CritterInputs.descPairs(8)(1).asInstanceOf[JComboBox[String]].setSelectedItem(killTypeNames(killType))
+                CritterInputs.descPairs(9)(1).asInstanceOf[JComboBox[String]].setSelectedItem(damageTypeNames(damageType))
 
-                val critterSkillInputs = critterSkillsPanel.inputs
+                val critterSkillInputs = CritterInputs.skillPairs.map(_._2)
                 skills.zipWithIndex.foreach{
                     case (num, index) => critterSkillInputs(index).asInstanceOf[JTextField].setText(num.toString)
                 }
+
                 baseAgePanel.inputs(0).asInstanceOf[JTextField].setText(age.toString)
                 baseAgePanel.inputs(1).asInstanceOf[JTextField].setText(sex.toString)
                 bonusAgePanel.inputs(0).asInstanceOf[JTextField].setText(ageBonus.toString)
                 bonusAgePanel.inputs(1).asInstanceOf[JTextField].setText(sexBonus.toString)
 
                 primaryStats.zipWithIndex.foreach{
-                    case (num, index) => baseValsPanel.inputs(index).asInstanceOf[JTextField].setText(num.toString)
+                    case (num, index) => CritterInputs.baseStatPairs(index)(1).asInstanceOf[JTextField].setText(num.toString)
                 }
                 primaryStatBonuses.zipWithIndex.foreach{
-                    case (num, index) => bonusValsPanel.inputs(index).asInstanceOf[JTextField].setText(num.toString)
+                    case (num, index) => CritterInputs.bonusStatPairs(index)(1).asInstanceOf[JTextField].setText(num.toString)
                 }
 
-                baseDrAndDt.zip(baseDts.inputs).foreach{
-                    case (num, field) => field.asInstanceOf[JTextField].setText(num.toString)
+                baseDrAndDt.zip(CritterInputs.baseDtPairs).foreach{
+                    case (num, (_, field)) => field.asInstanceOf[JTextField].setText(num.toString)
                 }
-                baseDrAndDtBonuses.zip(bonusDts.inputs).foreach{
-                    case (num, field) => field.asInstanceOf[JTextField].setText(num.toString)
+                baseDrAndDtBonuses.zip(CritterInputs.bonusDtPairs).foreach{
+                    case (num, (_, field)) => field.asInstanceOf[JTextField].setText(num.toString)
                 }
 
             case ProfileData(
@@ -614,31 +571,33 @@ class ProfileFrame {
 
                 subTypeData match
                     case ArmorFields(ac: Int, damageResists: Array[Int], damageThresholds: Array[Int], perk: Int, maleFid: Int, femaleFid: Int) =>
-                        itemArmorPanel.inputs(0).asInstanceOf[JTextField].setText(ac.toString)
-                        itemArmorPanel.inputs(15).asInstanceOf[JTextField].setText(perk.toString)
-                        itemArmorPanel.inputs(16).asInstanceOf[JTextField].setText(maleFid.toString)
-                        itemArmorPanel.inputs(17).asInstanceOf[JTextField].setText(femaleFid.toString)
+                        val itemArmorFields = ItemArmorInputs.fieldPairs.map(_._2)
+                        itemArmorFields(0).asInstanceOf[JTextField].setText(ac.toString)
+                        itemArmorFields(15).asInstanceOf[JTextField].setText(perk.toString)
+                        itemArmorFields(16).asInstanceOf[JTextField].setText(maleFid.toString)
+                        itemArmorFields(17).asInstanceOf[JTextField].setText(femaleFid.toString)
 
-                        damageResists.zip(itemArmorPanel.inputs.drop(1).take(7)).map{
+                        damageResists.zip(itemArmorFields.drop(1).take(7)).map{
                             case (num, field) => field.asInstanceOf[JTextField].setText(num.toString)
                         }
-                        damageThresholds.zip(itemArmorPanel.inputs.drop(8).take(7)).map{
+                        damageThresholds.zip(itemArmorFields.drop(8).take(7)).map{
                             case (num, field) => field.asInstanceOf[JTextField].setText(num.toString)
                         }
 
                     case ContainerFields(maxSize, openFlagsData) =>
-                        itemContainerPanel.inputs(0).asInstanceOf[JTextField].setText(maxSize.toString)
+                        val (name, input) = ItemContainerInputs.fieldPairs(0)
+                        input.asInstanceOf[JTextField].setText(maxSize.toString)
                         for ((mask, checkBox) <- openFlags)
                             checkBox.setSelected((mask & openFlagsData) == mask)
 
                     case DrugFields     (data) =>
-                        data.zip(itemDrugPanel.inputs).map{
-                            case (num, field) => field.asInstanceOf[JTextField].setText(num.toString)
+                        data.zip(ItemDrugInputs.fieldPairs).map{
+                            case (num, (_, field)) => field.asInstanceOf[JTextField].setText(num.toString)
                         }
 
                     case WeaponFields   (data) =>
-                        data.zip(itemWeaponPanel.inputs).zipWithIndex.map{
-                            case ((num, field), index) =>
+                        data.zip(ItemWeaponInputs.fieldPairs).zipWithIndex.map{
+                            case ((num, (_, field)), index) =>
                                 if (index == 0)
                                     field.asInstanceOf[JComboBox[String]].setSelectedItem(weaponAnimCodeNames(num))
                                 else if (index == 3)
@@ -648,8 +607,8 @@ class ProfileFrame {
                         }
 
                     case AmmoFields     (data) =>
-                        data.zip(itemAmmoPanel.inputs).map{
-                            case (num, field) => field.asInstanceOf[JTextField].setText(num.toString)
+                        data.zip(ItemAmmoInputs.fieldPairs).map{
+                            case (num, (_, field)) => field.asInstanceOf[JTextField].setText(num.toString)
                         }
 
                     case ItemMiscFields (data) =>
@@ -676,16 +635,17 @@ class ProfileFrame {
             ) => 
                 loadCommon(commonHeader)
 
-                setListFromFlagNum(wallLightTypeFlagList, wallLightTypeFlagValues, wallLightTypeFlags)
-                setListFromFlagNum(actionFlagList, actionFlagValues, actionFlags)
+                setListFromFlagNum(SceneryInputs.wallLightTypeFlagList, wallLightTypeFlagValues, wallLightTypeFlags)
+                setListFromFlagNum(SceneryInputs.actionFlagList, actionFlagValues, actionFlags)
 
-                sceneryCommonIdPanel.inputs(0).asInstanceOf[JTextField].setText(scriptType.toString)
-                sceneryCommonIdPanel.inputs(1).asInstanceOf[JTextField].setText(((possiblePartOfScriptId << 16) | scriptId).toString)
+                val sceneryFields = SceneryInputs.fieldPairs.drop(2).map(_._2)
+                sceneryFields(0).asInstanceOf[JTextField].setText(scriptType.toString)
+                sceneryFields(1).asInstanceOf[JTextField].setText(((possiblePartOfScriptId << 16) | scriptId).toString)
 
-                sceneryCommonIdPanel.inputs(2).asInstanceOf[JComboBox[String]].setSelectedItem(scenerySubtypeNames(scenerySubtype))
-                sceneryCommonIdPanel.inputs(3).asInstanceOf[JComboBox[String]].setSelectedItem(materialNames(materialId))
+                sceneryFields(2).asInstanceOf[JComboBox[String]].setSelectedItem(scenerySubtypeNames(scenerySubtype))
+                sceneryFields(3).asInstanceOf[JComboBox[String]].setSelectedItem(materialNames(materialId))
 
-                sceneryCommonIdPanel.inputs(4).asInstanceOf[JTextField].setText(soundId.toString)
+                sceneryFields(4).asInstanceOf[JTextField].setText(soundId.toString)
 
                 scenerySubtypeData match
                     case Door(walkThruFlagValue: Int, unknown: Int) =>
@@ -712,7 +672,10 @@ class ProfileFrame {
                         sceneryElevatorPanel.inputs(1).asInstanceOf[JTextField].setText(destTileAndElev(1).toString)
 
                     case Generic(unknown: Int) =>
-                        sceneryGenericPanel.inputs(0).asInstanceOf[JTextField].setText(unknown.toString)
+                        val genericCombo = sceneryGenericPanel.inputs(0).asInstanceOf[JComboBox[String]]
+                        for ((num, text) <- doorUnknownValues)
+                            if (num == unknown)
+                                genericCombo.setSelectedItem(text)
 
             case ProfileData(
                 commonHeader,
@@ -744,4 +707,3 @@ class ProfileFrame {
                 miscPanel.inputs(0).asInstanceOf[JTextField].setText(unknown.toString)
 
 }
-

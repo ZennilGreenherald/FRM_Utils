@@ -3,8 +3,8 @@ import javax.swing.border._
 import java.awt._
 
 
-def namedFieldPanelFactory(fields: Seq[(String, Component)]): JPanel =
-    if (fields.isEmpty) throw new IllegalArgumentException(s"namedFieldPanelFactory fields arg is empty.")
+def fieldPanelFactory(fields: Seq[(String, Component)]): JPanel =
+    if (fields.isEmpty) throw new IllegalArgumentException(s"fieldPanelFactory fields arg is empty.")
     val (theseFields, nextFields) =
         if (fields(0)(1).isInstanceOf[JTextField] || fields(0)(1).isInstanceOf[JComboBox[?]])
             val firstFatComponentIndex = fields.indexWhere{
@@ -30,7 +30,7 @@ def namedFieldPanelFactory(fields: Seq[(String, Component)]): JPanel =
     val outer = new JPanel(new BorderLayout())
     outer.add(p, BorderLayout.NORTH)
     if (!nextFields.isEmpty)
-        outer.add(namedFieldPanelFactory(nextFields))
+        outer.add(fieldPanelFactory(nextFields))
     outer
 
 
