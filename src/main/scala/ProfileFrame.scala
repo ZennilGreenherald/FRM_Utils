@@ -261,7 +261,6 @@ object SceneryInputs {
 }
 
 object SceneryDoorInputs {
-
     val walkThruFlagCheckbox = new JCheckBox("yes")
     val doorUnknownCombo     = new JComboBox(doorUnknownValues.map(_._2))
 
@@ -269,6 +268,31 @@ object SceneryDoorInputs {
         ("WalkThru Flag", walkThruFlagCheckbox),
         ("Unknown", doorUnknownCombo)
     )
+}
+
+object SceneryStairsInputs {
+    val fieldNames = Seq("Dest Elev", "Dest Tile", "Dest Map")
+    val fieldPairs = fieldNames.map(s => (s, new JTextField()))
+}
+
+object SceneryElevatorInputs {
+    val fieldNames = Seq("Elev Type", "Elev Level")
+    val fieldPairs = fieldNames.map(s => (s, new JTextField()))
+}
+
+object SceneryLadderBottomInputs {
+    val fieldNames = Seq("Dest Tile", "Dest Elev")
+    val fieldPairs = fieldNames.map(s => (s, new JTextField()))
+}
+
+object SceneryLadderTopInputs {
+    val fieldNames = Seq("Dest Tile", "Dest Elev")
+    val fieldPairs = fieldNames.map(s => (s, new JTextField()))
+}
+
+object SceneryGenericInputs {
+    val sceneryGenericCombo = new JComboBox(doorUnknownValues.map(_._2))
+    val fieldPairs = Seq(("Unknown", sceneryGenericCombo))
 }
 
 object WallsInputs {
@@ -339,18 +363,12 @@ class ProfileFrame {
     val critterSkillsPanel = fieldPanelFactory(CritterInputs.skillPairs)
     val sceneryCommonPanel = fieldPanelFactory(SceneryInputs.fieldPairs)
 
-    val sceneryDoorPanel = fieldPanelFactory(SceneryDoorInputs.fieldPairs)
-
-    val sceneryStairsPanel = NamedFieldPanel(Seq("Dest Elev", "Dest Tile", "Dest Map"))
-
-    val sceneryElevatorPanel = NamedFieldPanel(Seq("Elev Type", "Elev Level"))
-
-    val sceneryLadderBottomPanel = NamedFieldPanel(Seq("Dest Tile", "Dest Elev"))
-
-    val sceneryLadderTopPanel = NamedFieldPanel(Seq("Dest Tile", "Dest Elev"))
-
-    val sceneryGenericCombo = new JComboBox(doorUnknownValues.map(_._2))
-    val sceneryGenericPanel = NamedFieldPanel(Seq(("Unknown", sceneryGenericCombo)))
+    val sceneryDoorPanel         = fieldPanelFactory(SceneryDoorInputs.fieldPairs)
+    val sceneryStairsPanel       = fieldPanelFactory(SceneryStairsInputs.fieldPairs)
+    val sceneryElevatorPanel     = fieldPanelFactory(SceneryElevatorInputs.fieldPairs)
+    val sceneryLadderBottomPanel = fieldPanelFactory(SceneryLadderBottomInputs.fieldPairs)
+    val sceneryLadderTopPanel    = fieldPanelFactory(SceneryLadderTopInputs.fieldPairs)
+    val sceneryGenericPanel      = fieldPanelFactory(SceneryGenericInputs.fieldPairs)
 
     val scenerySubtypePanel = new SwitchablePanel(Seq(
         ("Door", sceneryDoorPanel),
@@ -657,24 +675,24 @@ class ProfileFrame {
                                 SceneryDoorInputs.doorUnknownCombo.setSelectedItem(label)
 
                     case Stairs(data: Array[Int]) =>
-                        data.zip(sceneryStairsPanel.inputs).map{
-                            case (num, field) => field.asInstanceOf[JTextField].setText(num.toString)
+                        data.zip(SceneryStairsInputs.fieldPairs).map{
+                            case (num, (_, field)) => field.asInstanceOf[JTextField].setText(num.toString)
                         }
 
                     case Elevator(elevType: Int, elevLevel: Int) =>
-                        sceneryElevatorPanel.inputs(0).asInstanceOf[JTextField].setText(elevType.toString)
-                        sceneryElevatorPanel.inputs(1).asInstanceOf[JTextField].setText(elevLevel.toString)
+                        SceneryElevatorInputs.fieldPairs(0)(1).asInstanceOf[JTextField].setText(elevType.toString)
+                        SceneryElevatorInputs.fieldPairs(1)(1).asInstanceOf[JTextField].setText(elevLevel.toString)
 
                     case LadderBottom(destTileAndElev: Array[Int]) =>
-                        sceneryElevatorPanel.inputs(0).asInstanceOf[JTextField].setText(destTileAndElev(0).toString)
-                        sceneryElevatorPanel.inputs(1).asInstanceOf[JTextField].setText(destTileAndElev(1).toString)
+                        SceneryLadderBottomInputs.fieldPairs(0)(1).asInstanceOf[JTextField].setText(destTileAndElev(0).toString)
+                        SceneryLadderBottomInputs.fieldPairs(1)(1).asInstanceOf[JTextField].setText(destTileAndElev(1).toString)
 
                     case LadderTop(destTileAndElev: Array[Int]) =>
-                        sceneryElevatorPanel.inputs(0).asInstanceOf[JTextField].setText(destTileAndElev(0).toString)
-                        sceneryElevatorPanel.inputs(1).asInstanceOf[JTextField].setText(destTileAndElev(1).toString)
+                        SceneryLadderTopInputs.fieldPairs(0)(1).asInstanceOf[JTextField].setText(destTileAndElev(0).toString)
+                        SceneryLadderTopInputs.fieldPairs(1)(1).asInstanceOf[JTextField].setText(destTileAndElev(1).toString)
 
                     case Generic(unknown: Int) =>
-                        val genericCombo = sceneryGenericPanel.inputs(0).asInstanceOf[JComboBox[String]]
+                        val genericCombo = SceneryGenericInputs.fieldPairs(0)(1).asInstanceOf[JComboBox[String]]
                         for ((num, text) <- doorUnknownValues)
                             if (num == unknown)
                                 genericCombo.setSelectedItem(text)
