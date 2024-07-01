@@ -27,12 +27,12 @@ object HeaderInputs {
 
     val fieldPairs: Seq[(String, JComponent)] = Seq(
         ("Object Type", objectTypeCombo),
-        ("Object Id", new JTextField()),
-        ("Text Id", new JTextField()),
+        ("Object Id", new NumberField()),
+        ("Text Id", new NumberField()),
         ("Frm Type", frmTypeCombo),
         ("Frm Id", new JTextField()),
-        ("Light Radius", new JTextField()),
-        ("Light Intensity", new JTextField()),
+        ("Light Radius", new NumberField()),
+        ("Light Intensity", new NumberField()),
         ("Flags", headerFlagsList)
     )
 }
@@ -56,14 +56,14 @@ object ItemInputs {
         ("Weapon Flags", weaponPanel),
         ("Attack Mode 1", attackModeCombo1), 
         ("Attack Mode 2", attackModeCombo2), 
-        ("Script Id", new JTextField()),
+        ("Script Id", new NumberField()),
         ("Object Subtype", itemSubtypeCombo), 
-        ("Material Id", new JTextField()),
-        ("Size", new JTextField()),
-        ("Weight", new JTextField()),
-        ("Cost", new JTextField()),
-        ("Inv FID", new JTextField()),
-        ("Sound Id", new JTextField())
+        ("Material Id", new NumberField()),
+        ("Size", new NumberField()),
+        ("Weight", new NumberField()),
+        ("Cost", new NumberField()),
+        ("Inv FID", new NumberField()),
+        ("Sound Id", new NumberField())
     )
 }
 
@@ -90,7 +90,7 @@ object ItemArmorInputs {
         "Perk", 
         "Male FID", 
         "Female FID"
-    ).map(s => (s, new JTextField()))
+    ).map(s => (s, new NumberField()))
 }
 
 object ItemContainerInputs {
@@ -99,7 +99,7 @@ object ItemContainerInputs {
     openFlags.foreach(a => openFlagPanel.add(a._2))
 
     val fieldPairs: Seq[(String, JComponent)] = Seq(
-        ("Max Size", new JTextField()),
+        ("Max Size", new NumberField()),
         ("Open Flags", openFlagPanel)
     )
 }
@@ -123,7 +123,7 @@ object ItemDrugInputs {
         "Addiction Rate", 
         "Addiction Effect", 
         "Addiction Onset"
-    ).map(s => (s, new JTextField()))
+    ).map(s => (s, new NumberField()))
 }
 
 object ItemWeaponInputs {
@@ -132,22 +132,22 @@ object ItemWeaponInputs {
 
     val fieldPairs: Seq[(String, JComponent)] = Seq(
         ("Anim Code", weaponAnimCodeCombo), 
-        ("Min Damage", new JTextField()), 
-        ("Max Damage", new JTextField()), 
+        ("Min Damage", new NumberField()), 
+        ("Max Damage", new NumberField()), 
         ("Damage Type", weaponDamageTypeCombo), 
-        ("Max Range 1", new JTextField()), 
-        ("Max Range 2", new JTextField()), 
-        ("Proj PID", new JTextField()), 
-        ("Min ST", new JTextField()), 
-        ("AP Cost 1", new JTextField()), 
-        ("MP Cost 2", new JTextField()), 
-        ("Crit Fail", new JTextField()), 
-        ("Perk", new JTextField()), 
-        ("Rounds", new JTextField()), 
-        ("Caliber", new JTextField()), 
-        ("Ammo PID", new JTextField()), 
-        ("Max Ammo", new JTextField()), 
-        ("Sound Id", new JTextField())
+        ("Max Range 1", new NumberField()), 
+        ("Max Range 2", new NumberField()), 
+        ("Proj PID", new NumberField()), 
+        ("Min ST", new NumberField()), 
+        ("AP Cost 1", new NumberField()), 
+        ("MP Cost 2", new NumberField()), 
+        ("Crit Fail", new NumberField()), 
+        ("Perk", new NumberField()), 
+        ("Rounds", new NumberField()), 
+        ("Caliber", new NumberField()), 
+        ("Ammo PID", new NumberField()), 
+        ("Max Ammo", new NumberField()), 
+        ("Sound Id", new NumberField())
     )    
 }
 
@@ -159,16 +159,16 @@ object ItemAmmoInputs {
         "DC Modifier", 
         "Damage Mult", 
         "Damage Div"
-    ).map(s => (s, new JTextField()))
+    ).map(s => (s, new NumberField()))
 }
 
 object ItemMiscInputs {
     val fieldNames = Seq("Power PID", "Power Type", "Charges")    
-    val fieldPairs = fieldNames.map(s => (s, new JTextField()))
+    val fieldPairs = fieldNames.map(s => (s, new NumberField()))
 }
 
 object ItemKeyInputs {
-    val fieldPairs = Seq((("Key Code"), new JTextField()))
+    val fieldPairs = Seq((("Key Code"), new NumberField()))
 }
 
 object CritterInputs {
@@ -190,8 +190,8 @@ object CritterInputs {
         "DR Radiation",
         "DR Poison",
     )
-    val baseDtPairs  = dtAndDrNames.map(s => (s, new JTextField()))
-    val bonusDtPairs = dtAndDrNames.map(s => (s, new JTextField()))
+    val baseDtPairs  = dtAndDrNames.map(s => (s, new NumberField()))
+    val bonusDtPairs = dtAndDrNames.map(s => (s, new NumberField()))
 
     val statNames = Seq(
         "Strength (1-10)",
@@ -212,8 +212,8 @@ object CritterInputs {
         "Critical chance",
         "Better criticals"
     )
-    val baseStatPairs  = statNames.map(s => (s, new JTextField()))
-    val bonusStatPairs = statNames.map(s => (s, new JTextField()))
+    val baseStatPairs  = statNames.map(s => (s, new NumberField()))
+    val bonusStatPairs = statNames.map(s => (s, new NumberField()))
 
     val actionFlagsValues = Array(
         (0x00002000, "0x00002000"),
@@ -233,13 +233,13 @@ object CritterInputs {
 
     val descPairs = Seq(
         ("ActionFlags", actionFlagsList), 
-        ("Script ID", new JTextField()),
-        ("Head FID", new JTextField()),
-        ("AI Packet", new JTextField()),
-        ("Team Num", new JTextField()),
+        ("Script ID", new NumberField()),
+        ("Head FID", new NumberField()),
+        ("AI Packet", new NumberField()),
+        ("Team Num", new NumberField()),
         ("Critter Flags", critterFlagsList), 
         ("Body Type", bodyTypeCombo), 
-        ("Exp Val", new JTextField()),
+        ("Exp Val", new NumberField()),
         ("Kill Type", killTypeCombo), 
         ("Damage Type", critterDamageTypeCombo)
     )
@@ -264,11 +264,11 @@ object CritterInputs {
         "Gambling (0-300)",
         "Outdoorsman (0-300)"
     )
-    val skillPairs = skillNames.map(s => (s, new JTextField()))
+    val skillPairs = skillNames.map(s => (s, new NumberField()))
 
     val ageAndGenderNames = Seq("Age", "Gender")
-    val ageAndGenderPairs = ageAndGenderNames.map(s => (s, new JTextField()))
-    val ageAndGenderBonusPairs = ageAndGenderNames.map(s => (s, new JTextField()))
+    val ageAndGenderPairs = ageAndGenderNames.map(s => (s, new NumberField()))
+    val ageAndGenderBonusPairs = ageAndGenderNames.map(s => (s, new NumberField()))
 }
 
 object SceneryInputs {
@@ -286,11 +286,11 @@ object SceneryInputs {
     val fieldPairs = Seq(
         ("Wall Light Type Flags", wallLightTypeFlagList),
         ("Action Flags", actionFlagList),
-        ("Script Type", new JTextField()),
-        ("Script ID", new JTextField()),
+        ("Script Type", new NumberField()),
+        ("Script ID", new NumberField()),
         ("Scenery Subtype", scenerySubtypeCombo), 
         ("Material ID", materialsCombo), 
-        ("Sound ID", new JTextField())
+        ("Sound ID", new NumberField())
     )
 }
 
@@ -306,22 +306,22 @@ object SceneryDoorInputs {
 
 object SceneryStairsInputs {
     val fieldNames = Seq("Dest Elev", "Dest Tile", "Dest Map")
-    val fieldPairs = fieldNames.map(s => (s, new JTextField()))
+    val fieldPairs = fieldNames.map(s => (s, new NumberField()))
 }
 
 object SceneryElevatorInputs {
     val fieldNames = Seq("Elev Type", "Elev Level")
-    val fieldPairs = fieldNames.map(s => (s, new JTextField()))
+    val fieldPairs = fieldNames.map(s => (s, new NumberField()))
 }
 
 object SceneryLadderBottomInputs {
     val fieldNames = Seq("Dest Tile", "Dest Elev")
-    val fieldPairs = fieldNames.map(s => (s, new JTextField()))
+    val fieldPairs = fieldNames.map(s => (s, new NumberField()))
 }
 
 object SceneryLadderTopInputs {
     val fieldNames = Seq("Dest Tile", "Dest Elev")
-    val fieldPairs = fieldNames.map(s => (s, new JTextField()))
+    val fieldPairs = fieldNames.map(s => (s, new NumberField()))
 }
 
 object SceneryGenericInputs {
@@ -344,8 +344,8 @@ object WallsInputs {
     val fieldPairs = Seq(
         ("Wall Light Type Flags", wallLightTypeFlagList),
         ("ActionFlags", actionFlagsList),
-        ("Script Type", new JTextField()),
-        ("Script ID", new JTextField()),
+        ("Script Type", new NumberField()),
+        ("Script ID", new NumberField()),
         ("Material ID", materialsCombo)
     )
 }
@@ -356,7 +356,7 @@ object TilesInputs {
 }
 
 object MiscInputs {
-    val fieldPairs = Seq((("Unknown"), new JTextField()))
+    val fieldPairs = Seq((("Unknown"), new NumberField()))
 }
 
 
@@ -951,10 +951,12 @@ class ProfileFrame {
                     itemCommonInputs(i).asInstanceOf[JTextField].setText(itemCommonData(i - 1).toString)
 
                 val attackNum = itemCommonData(3)
+                println(s"read attackNum $attackNum")
                 val attackMode1 = attackNum & 0x0f
-                val attackMode2 = attackNum & 0xf0
-                itemCommonInputs(3).asInstanceOf[JComboBox[String]].setSelectedItem(weaponAnimCodeNames(attackMode1))
-                itemCommonInputs(4).asInstanceOf[JComboBox[String]].setSelectedItem(weaponAnimCodeNames(attackMode2))
+                val attackMode2 = (attackNum & 0xf0) >> 4
+                println(s"read attackModes $attackMode1, $attackMode2")
+                itemCommonInputs(3).asInstanceOf[JComboBox[String]].setSelectedItem(attackModeNames(attackMode1))
+                itemCommonInputs(4).asInstanceOf[JComboBox[String]].setSelectedItem(attackModeNames(attackMode2))
                 itemCommonInputs(6).asInstanceOf[JComboBox[String]].setSelectedItem(itemSubtypeNames(itemCommonData(5)))
 
                 subTypeData match

@@ -1,6 +1,32 @@
-import javax.swing._
-import javax.swing.border._
-import java.awt._
+import javax.swing.*
+import javax.swing.border.*
+import javax.swing.event.*
+import javax.swing.text.*
+import java.awt.*
+
+
+class NumberField() extends JTextField, DocumentListener {
+
+    val origForeground = this.getForeground()
+
+    getDocument().addDocumentListener(this)
+
+    override def changedUpdate(e: DocumentEvent): Unit = 
+        getText() match
+            case null => ()
+            case s =>
+                val base = if (s.startsWith("0x")) 16 else 10
+                val numStr = if (s.startsWith("0x")) s.substring(2) else s
+                
+                try
+                    Integer.parseInt(numStr, base)
+                    setForeground(origForeground)
+                catch
+                    case e: Exception => setForeground(Color.red)
+
+    override def insertUpdate(e: DocumentEvent): Unit = changedUpdate(e)
+    override def removeUpdate(e: DocumentEvent): Unit = changedUpdate(e)
+}
 
 
 def fieldPanelFactory(fields: Seq[(String, Component)]): JPanel =
