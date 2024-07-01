@@ -15,7 +15,6 @@ import FlagsAndEnums.*
 // * a reload option
 // * open recent files feature
 // 'skills' tab, use quantum's FO2 calculations
-// then post about it at https://www.nma-fallout.com/forums/fallout-general-modding.18/
 
 object HeaderInputs {
     val objectTypeCombo = new JComboBox(objectTypeNames)
@@ -484,6 +483,7 @@ class ProfileFrame {
             if (returnVal == JFileChooser.APPROVE_OPTION)
                 Option(fc.getSelectedFile()).foreach(f => 
                     previouslyOpenedFile = f
+                    frame.setTitle(f.toString)
                     load(Profiler.parseFile(f.toPath))
                 )
     })
@@ -498,6 +498,7 @@ class ProfileFrame {
             if (returnVal == JFileChooser.APPROVE_OPTION)
                 Option(fc.getSelectedFile()).foreach(f => 
                     previouslyOpenedFile = f
+                    frame.setTitle(f.toString)
                     save(f)
                 )
     })
