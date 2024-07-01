@@ -10,5 +10,7 @@ For more information on the sbt-dotty plugin, see the
 Build Dependencies:
 SBT
 
-Just to run 'FRM Utils-assembly-0.1.0-SNAPSHOT.jar':
+Runtime Dependencies, just to run 'FRM Utils-assembly-0.1.0-SNAPSHOT.jar':
 Java 11
+
+How to run the jar: java -jar "./FRM Utils-assembly-0.1.0-SNAPSHOT.jar"
