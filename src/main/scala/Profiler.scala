@@ -63,6 +63,10 @@ object Profiler {
     tuples
 
 
+  def writeProfileToStream(profileData: ProfileData, out: DataOutputStream): Unit =
+    writePairsToStream(toKeyValuePairs(profileData), out)
+
+
   def writePairsToStream(pairs: Array[(String, Int)], out: DataOutputStream): Unit =
     // for (p <- pairs)
     //   println(s"pair: $p")

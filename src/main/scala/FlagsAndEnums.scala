@@ -25,6 +25,10 @@ object FlagsAndEnums {
         (0x000010, new JCheckBox("Use On Something")),
         (0x000080, new JCheckBox("PickUp"))
     )
+    val weaponFlags = Array(
+        (0x000001, new JCheckBox("Big Gun")),
+        (0x000002, new JCheckBox("2Hnd (weapon is two-handed)"))
+    )
     val openFlags = Array(
         (0x00000001, new JCheckBox("Cannot Pick Up")),
         (0x00000008, new JCheckBox("Magic Hands Grnd"))

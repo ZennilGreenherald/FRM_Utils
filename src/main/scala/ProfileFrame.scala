@@ -5,7 +5,9 @@ import java.awt.dnd.*
 import java.awt.datatransfer.DataFlavor
 import java.awt.event.*
 
-import java.io.File
+import java.io.{DataOutputStream, File, FileOutputStream}
+
+import util.Try
 
 import FlagsAndEnums.*
 
@@ -13,7 +15,6 @@ import FlagsAndEnums.*
 // * a reload option
 // * open recent files feature
 // 'skills' tab, use quantum's FO2 calculations
-// make it save!!!
 // then post about it at https://www.nma-fallout.com/forums/fallout-general-modding.18/
 
 object HeaderInputs {
@@ -41,6 +42,10 @@ object ItemInputs {
     actionPanel.setBorder(BorderFactory.createEmptyBorder())
     actionFlags.foreach(a => actionPanel.add(a._2))
 
+    val weaponPanel = new JPanel()
+    weaponPanel.setBorder(BorderFactory.createEmptyBorder())
+    weaponFlags.foreach(a => weaponPanel.add(a._2))
+
     val attackModeCombo1 = new JComboBox(attackModeNames)
     val attackModeCombo2 = new JComboBox(attackModeNames)
     val itemSubtypeCombo = new JComboBox(itemSubtypeNames)
@@ -48,7 +53,7 @@ object ItemInputs {
     val fieldPairs: Seq[(String, JComponent)] = Seq(
         ("Item Flag", itemFlags(0)(1)), 
         ("Action Flags", actionPanel), 
-        ("Weapon Flags", new JTextField()),
+        ("Weapon Flags", weaponPanel),
         ("Attack Mode 1", attackModeCombo1), 
         ("Attack Mode 2", attackModeCombo2), 
         ("Script Id", new JTextField()),
@@ -210,8 +215,13 @@ object CritterInputs {
     val baseStatPairs  = statNames.map(s => (s, new JTextField()))
     val bonusStatPairs = statNames.map(s => (s, new JTextField()))
 
-    val critterActionFlagValues = Array("0x00002000", "0x00004000")
-    val critterActionFlagCombo = new JComboBox(critterActionFlagValues)
+    val actionFlagsValues = Array(
+        (0x00002000, "0x00002000"),
+        (0x00004000, "0x00004000")
+    )
+    val actionFlagsList = new JList(actionFlagsValues.map(_._2))
+    actionFlagsList.setSelectionMode(ListSelectionModel.MULTIPLE_INTERVAL_SELECTION)
+    actionFlagsList.setLayoutOrientation(JList.VERTICAL)
 
     val critterFlagsList = new JList(critterFlags.map(_._2))
     critterFlagsList.setSelectionMode(ListSelectionModel.MULTIPLE_INTERVAL_SELECTION)
@@ -222,7 +232,7 @@ object CritterInputs {
     val critterDamageTypeCombo = new JComboBox(damageTypeNames)
 
     val descPairs = Seq(
-        ("ActionFlags", critterActionFlagCombo), 
+        ("ActionFlags", actionFlagsList), 
         ("Script ID", new JTextField()),
         ("Head FID", new JTextField()),
         ("AI Packet", new JTextField()),
@@ -462,13 +472,13 @@ class ProfileFrame {
     menu.setMnemonic(KeyEvent.VK_F)
     menuBar.add(menu)
 
-    val menuItem = new JMenuItem("Open", KeyEvent.VK_O)
-    menuItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_O, ActionEvent.CTRL_MASK))
+    val openMenuItem = new JMenuItem("Open...", KeyEvent.VK_O)
+    openMenuItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_O, ActionEvent.CTRL_MASK))
 
     var previouslyOpenedFile: File = null
 
-    menuItem.addActionListener(event => {
-        if (event.getActionCommand() == "Open")
+    openMenuItem.addActionListener(event => {
+        if (event.getActionCommand() == "Open...")
             val fc = new JFileChooser(previouslyOpenedFile)
             val returnVal = fc.showOpenDialog(frame)
             if (returnVal == JFileChooser.APPROVE_OPTION)
@@ -477,7 +487,21 @@ class ProfileFrame {
                     load(Profiler.parseFile(f.toPath))
                 )
     })
-    menu.add(menuItem)
+    menu.add(openMenuItem)
+
+    val saveAsMenuItem = new JMenuItem("Save As...", KeyEvent.VK_A)
+
+    saveAsMenuItem.addActionListener(event => {
+        if (event.getActionCommand() == "Save As...")
+            val fc = new JFileChooser(previouslyOpenedFile)
+            val returnVal = fc.showSaveDialog(frame)
+            if (returnVal == JFileChooser.APPROVE_OPTION)
+                Option(fc.getSelectedFile()).foreach(f => 
+                    previouslyOpenedFile = f
+                    save(f)
+                )
+    })
+    menu.add(saveAsMenuItem)
 
     frame.setJMenuBar(menuBar)
     frame.setDropTarget(new DropTarget() {
@@ -486,7 +510,7 @@ class ProfileFrame {
                 event.acceptDrop(DnDConstants.ACTION_COPY)
                 val droppedFiles = event.getTransferable().getTransferData(DataFlavor.javaFileListFlavor)
 
-                import collection.JavaConverters.collectionAsScalaIterableConverter
+                import scala.jdk.CollectionConverters.*
                 val fileSeq = droppedFiles.asInstanceOf[java.util.List[File]].asScala // .toSeq()
 
                 fileSeq.headOption.foreach(f => 
@@ -535,6 +559,298 @@ class ProfileFrame {
         list.setSelectedIndices(selectedIndexes.toArray)
 
 
+    def save(outFile: File): Unit =
+
+        val headerInputs = HeaderInputs.fieldPairs.map(_._2)
+
+        val objTypeNameIndex = headerInputs(0).asInstanceOf[JComboBox[String]].getSelectedIndex()
+        val objType        = math.max(0, objTypeNameIndex)
+
+        val allObjId       = Try(headerInputs(1).asInstanceOf[JTextField].getText().toInt).getOrElse(0)
+        val textId         = Try(headerInputs(2).asInstanceOf[JTextField].getText().toInt).getOrElse(0)
+
+        val frmTypeNameIndex = headerInputs(3).asInstanceOf[JComboBox[String]].getSelectedIndex()
+        val frmType        = math.max(0, frmTypeNameIndex)
+
+        val allFrmId       = Try(headerInputs(4).asInstanceOf[JTextField].getText().toInt).getOrElse(0)
+        val lightRadius    = Try(headerInputs(5).asInstanceOf[JTextField].getText().toInt).getOrElse(0)
+        val lightIntensity = Try(headerInputs(6).asInstanceOf[JTextField].getText().toInt).getOrElse(0)
+
+        val headerIndices = headerInputs(7).asInstanceOf[JList[String]].getSelectedIndices()
+        val headerFlags = commonHeaderFlags.zipWithIndex.foldLeft(0) {
+            case (acc, ((flag, _), i)) => if (headerIndices.contains(i)) acc | flag else acc
+        }
+
+        val objectTypeData = frmType match
+            case 0 => 
+                val itemFlagsNum = itemFlags.foldLeft(0) {
+                    case (acc, (flag, checkBox)) => if (checkBox.isSelected()) acc | flag else acc
+                }
+                val actionFlagsNum = actionFlags.foldLeft(0) {
+                    case (acc, (flag, checkBox)) => if (checkBox.isSelected()) acc | flag else acc
+                }
+                val weaponFlagsNum = weaponFlags.foldLeft(0) {
+                    case (acc, (flag, checkBox)) => if (checkBox.isSelected()) acc | flag else acc
+                }
+
+                val itemCommonInputs = ItemInputs.fieldPairs.map(_._2)
+
+                val attackMode1 = math.max(0, itemCommonInputs(3).asInstanceOf[JComboBox[String]].getSelectedIndex())
+                val attackMode2 = math.max(0, itemCommonInputs(4).asInstanceOf[JComboBox[String]].getSelectedIndex())
+                val attackNum = (attackMode2 << 4) | attackMode1
+
+                val scriptId = Try(itemCommonInputs(5).asInstanceOf[JTextField].getText().toInt).getOrElse(0)
+                val objSubtype = math.max(0, itemCommonInputs(6).asInstanceOf[JComboBox[String]].getSelectedIndex())
+                val itemData6 = Try(itemCommonInputs(7).asInstanceOf[JTextField].getText().toInt).getOrElse(0)
+                val itemData7 = Try(itemCommonInputs(8).asInstanceOf[JTextField].getText().toInt).getOrElse(0)
+                val itemData8 = Try(itemCommonInputs(9).asInstanceOf[JTextField].getText().toInt).getOrElse(0)
+                val itemData9 = Try(itemCommonInputs(10).asInstanceOf[JTextField].getText().toInt).getOrElse(0)
+                val itemData10 = Try(itemCommonInputs(11).asInstanceOf[JTextField].getText().toInt).getOrElse(0)
+                val itemData11 = Try(itemCommonInputs(12).asInstanceOf[JTextField].getText().toInt).getOrElse(0)
+                
+                val itemCommonData = Array(
+                    itemFlagsNum,
+                    actionFlagsNum,
+                    weaponFlagsNum,
+                    attackNum,
+                    scriptId,
+                    objSubtype,
+                    itemData6,
+                    itemData7,
+                    itemData8,
+                    itemData9,
+                    itemData10,
+                    itemData11
+                )
+
+                val subTypeData: ItemSubtype = objSubtype match
+                    case 0 => 
+                        val armorFields = ItemArmorInputs.fieldPairs.map(_._2).map(f => Try(f.getText().toInt).getOrElse(0))
+                        ArmorFields(armorFields(0), armorFields.drop(1).take(7).toArray, armorFields.drop(8).take(7).toArray, armorFields(15), armorFields(16), armorFields(17))
+
+                    case 1 => 
+                        val (name, input) = ItemContainerInputs.fieldPairs(0)
+                        val maxSize = Try(input.asInstanceOf[JTextField].getText().toInt).getOrElse(0)
+
+                        ContainerFields(
+                            maxSize,
+                            openFlags.foldLeft(0) {
+                                case (acc, (flag, checkBox)) => if (checkBox.isSelected()) acc | flag else acc
+                            }
+                        )
+
+                    case 2 => 
+                        DrugFields(
+                            ItemDrugInputs.fieldPairs.map{
+                                case (_, field) => Try(field.asInstanceOf[JTextField].getText().toInt).getOrElse(0)
+                            }.toArray
+                        )
+
+                    case 3 => 
+                        WeaponFields(
+                            ItemWeaponInputs.fieldPairs.zipWithIndex.map{
+                                case ((_, field), index) =>
+                                    if (index == 0 || index == 3)
+                                        math.max(0, field.asInstanceOf[JComboBox[String]].getSelectedIndex())
+                                    else
+                                        Try(field.asInstanceOf[JTextField].getText().toInt).getOrElse(0)
+                            }.toArray
+                        )
+
+                    case 4 => 
+                        AmmoFields(
+                            ItemAmmoInputs.fieldPairs.map{
+                                case (_, field) => Try(field.asInstanceOf[JTextField].getText().toInt).getOrElse(0)
+                            }.toArray
+                        )
+
+                    case 5 => 
+                        AmmoFields(
+                            ItemMiscInputs.fieldPairs.map{
+                                case (_, field) => Try(field.asInstanceOf[JTextField].getText().toInt).getOrElse(0)
+                            }.toArray
+                        )
+
+                    case 6 => 
+                        KeyFields(
+                            Try(ItemKeyInputs.fieldPairs(0)(0).asInstanceOf[JTextField].getText().toInt).getOrElse(0)
+                        )
+
+
+                ItemData(ItemCommonFields(itemCommonData), subTypeData)
+
+            case 1 =>
+
+                val flagsExt = CritterInputs.actionFlagsValues.zipWithIndex.foldLeft(0){
+                    case (acc, ((flag, _), i)) => if (CritterInputs.actionFlagsList.isSelectedIndex(i)) acc | flag else acc
+                }
+
+                val scriptId = Try(CritterInputs.descPairs(1)(1).asInstanceOf[JTextField].getText().toInt).getOrElse(0)
+                val headFid  = Try(CritterInputs.descPairs(2)(1).asInstanceOf[JTextField].getText().toInt).getOrElse(0)
+                val aiPacket = Try(CritterInputs.descPairs(3)(1).asInstanceOf[JTextField].getText().toInt).getOrElse(0)
+                val teamNum  = Try(CritterInputs.descPairs(4)(1).asInstanceOf[JTextField].getText().toInt).getOrElse(0)
+
+                val critterFlagsValue = critterFlags.zipWithIndex.foldLeft(0){
+                    case (acc, ((flag, _), i)) => if (CritterInputs.critterFlagsList.isSelectedIndex(i)) acc | flag else acc
+                }
+
+                val primaryStats = CritterInputs.baseStatPairs.map(p => Try(p._2.asInstanceOf[JTextField].getText().toInt).getOrElse(0))
+                val baseDrAndDt = CritterInputs.baseDtPairs.map(p => Try(p._2.asInstanceOf[JTextField].getText().toInt).getOrElse(0))
+
+                val age = Try(CritterInputs.ageAndGenderPairs(0)(1).asInstanceOf[JTextField].getText().toInt).getOrElse(0)
+                val sex = Try(CritterInputs.ageAndGenderPairs(1)(1).asInstanceOf[JTextField].getText().toInt).getOrElse(0)
+
+                val primaryStatBonuses = CritterInputs.bonusStatPairs.map(p => Try(p._2.asInstanceOf[JTextField].getText().toInt).getOrElse(0))
+                val baseDrAndDtBonuses = CritterInputs.bonusDtPairs.map(p => Try(p._2.asInstanceOf[JTextField].getText().toInt).getOrElse(0))
+
+                val ageBonus = Try(CritterInputs.ageAndGenderBonusPairs(0)(1).asInstanceOf[JTextField].getText().toInt).getOrElse(0)
+                val sexBonus = Try(CritterInputs.ageAndGenderBonusPairs(1)(1).asInstanceOf[JTextField].getText().toInt).getOrElse(0)
+
+                val skills = CritterInputs.skillPairs.map(p => Try(p._2.asInstanceOf[JTextField].getText().toInt).getOrElse(0))
+
+                val bodyType = math.max(0, CritterInputs.descPairs(6)(1).asInstanceOf[JComboBox[String]].getSelectedIndex())
+                val expVal   = Try(CritterInputs.descPairs(7)(1).asInstanceOf[JTextField].getText().toInt).getOrElse(0)
+                val killType = math.max(0, CritterInputs.descPairs(8)(1).asInstanceOf[JComboBox[String]].getSelectedIndex())
+                val damageType = math.max(0, CritterInputs.descPairs(9)(1).asInstanceOf[JComboBox[String]].getSelectedIndex())
+
+                CritterData(
+                    flagsExt, 
+                    scriptId, 
+                    headFid, 
+                    aiPacket, 
+                    teamNum, 
+                    critterFlagsValue, 
+                    primaryStats.toArray, 
+                    baseDrAndDt.toArray, 
+                    age, 
+                    sex,
+                    primaryStatBonuses.toArray, 
+                    baseDrAndDtBonuses.toArray, 
+                    ageBonus, 
+                    sexBonus, 
+                    skills.toArray, 
+                    bodyType, 
+                    expVal, 
+                    killType, 
+                    damageType
+                )
+
+            case 2 =>
+
+                val wallLightTypeFlags = wallLightTypeFlagValues.zipWithIndex.foldLeft(0){
+                    case (acc, ((flag, _), i)) => if (SceneryInputs.wallLightTypeFlagList.isSelectedIndex(i)) acc | flag else acc
+                }
+
+                val actionFlags = actionFlagValues.zipWithIndex.foldLeft(0){
+                    case (acc, ((flag, _), i)) => if (SceneryInputs.actionFlagList.isSelectedIndex(i)) acc | flag else acc
+                }
+
+                val sceneryFields = SceneryInputs.fieldPairs.drop(2).map(_._2)
+                val scriptType = Try(sceneryFields(0).asInstanceOf[JTextField].getText().toInt).getOrElse(0)
+
+                val allScriptId = Try(sceneryFields(1).asInstanceOf[JTextField].getText().toInt).getOrElse(0)
+                val possiblePartOfScriptId = allScriptId >> 16
+                val scriptId = allScriptId & 0xFFFF
+
+                val scenerySubtype = math.max(0, sceneryFields(2).asInstanceOf[JComboBox[String]].getSelectedIndex())
+                val materialId = math.max(0, sceneryFields(3).asInstanceOf[JComboBox[String]].getSelectedIndex())
+                val soundId = Try(sceneryFields(4).asInstanceOf[JTextField].getText().toInt).getOrElse(0)
+
+                val scenerySubtypeData = scenerySubtype match
+                    case 0 =>
+                        Door(
+                            if (SceneryDoorInputs.walkThruFlagCheckbox.isSelected()) walkThruFlag else 0,
+                            doorUnknownValues(math.max(0, SceneryDoorInputs.doorUnknownCombo.getSelectedIndex()))(0)
+                        )
+
+                    case 1 =>
+                        Stairs(
+                            SceneryStairsInputs.fieldPairs.map{
+                                case (_, field) => Try(field.asInstanceOf[JTextField].getText().toInt).getOrElse(0)
+                            }.toArray
+                        )
+
+                    case 2 =>
+                        val elevType  = Try(SceneryElevatorInputs.fieldPairs(0)(1).asInstanceOf[JTextField].getText().toInt).getOrElse(0)
+                        val elevLevel = Try(SceneryElevatorInputs.fieldPairs(1)(1).asInstanceOf[JTextField].getText().toInt).getOrElse(0)
+                        Elevator(elevType, elevLevel)
+
+                    case 3 =>
+                        LadderBottom(Array(
+                            Try(SceneryLadderBottomInputs.fieldPairs(0)(1).asInstanceOf[JTextField].getText().toInt).getOrElse(0),
+                            Try(SceneryLadderBottomInputs.fieldPairs(1)(1).asInstanceOf[JTextField].getText().toInt).getOrElse(0)
+                        ))
+
+                    case 4 =>
+                        LadderTop(Array(
+                            Try(SceneryLadderTopInputs.fieldPairs(0)(1).asInstanceOf[JTextField].getText().toInt).getOrElse(0),
+                            Try(SceneryLadderTopInputs.fieldPairs(1)(1).asInstanceOf[JTextField].getText().toInt).getOrElse(0)
+                        ))
+
+                    case 5 =>
+                        Generic(doorUnknownValues(math.max(0, SceneryGenericInputs.sceneryGenericCombo.getSelectedIndex()))(0))
+
+                SceneryData(
+                    SceneryCommonData(
+                        wallLightTypeFlags,
+                        actionFlags,
+                        ScriptTypeAndId(scriptType, possiblePartOfScriptId, scriptId),
+                        scenerySubtype,
+                        materialId,
+                        soundId: Int
+                    ),
+                    scenerySubtypeData
+                )
+
+            case 3 =>
+                val lightTypeFlags = wallLightTypeFlagValues.zipWithIndex.foldLeft(0){
+                    case (acc, ((flag, _), i)) => if (WallsInputs.wallLightTypeFlagList.isSelectedIndex(i)) acc | flag else acc
+                }
+
+                val actionFlags = actionFlagValues.zipWithIndex.foldLeft(0){
+                    case (acc, ((flag, _), i)) => if (WallsInputs.actionFlagsList.isSelectedIndex(i)) acc | flag else acc
+                }
+
+                val scriptType = Try(WallsInputs.fieldPairs(2)(1).asInstanceOf[JTextField].getText().toInt).getOrElse(0)
+                val allScriptId = Try(WallsInputs.fieldPairs(3)(1).asInstanceOf[JTextField].getText().toInt).getOrElse(0)
+                val possiblePartOfScriptId = allScriptId >> 16
+                val scriptId = allScriptId & 0xFFFF
+
+                val materialId = math.max(0, WallsInputs.fieldPairs(4)(1).asInstanceOf[JComboBox[String]].getSelectedIndex())
+
+                WallsData(
+                    lightTypeFlags,
+                    actionFlags,
+                    ScriptTypeAndId(scriptType, possiblePartOfScriptId, scriptId),
+                    materialId: Int
+                )
+
+            case 4 =>
+                val materialId = math.max(0, TilesInputs.fieldPairs(0)(1).asInstanceOf[JComboBox[String]].getSelectedIndex())
+                TilesData(materialId)
+
+            case 5 =>
+                val unknown = Try(MiscInputs.fieldPairs(0)(1).asInstanceOf[JTextField].getText().toInt).getOrElse(0)
+                MiscData(unknown: Int)
+
+
+        val profileData = ProfileData(
+            CommonHeader(
+                ObjectTypeAndId(objType, allObjId >> 16, allObjId & 0xFFFF),
+                textId, 
+                frmType, 
+                allFrmId >> 16, 
+                allFrmId & 0xFFFF, 
+                lightRadius, 
+                lightIntensity, 
+                headerFlags
+            ),
+            objectTypeData
+        )
+        val out = new DataOutputStream(new FileOutputStream(outFile))
+        Profiler.writeProfileToStream(profileData, out)
+
+
     def load(profileData: ProfileData): Unit =
         profileData match
             case ProfileData(
@@ -545,7 +861,7 @@ class ProfileFrame {
                     headFid: Int, 
                     aiPacket: Int, 
                     teamNum: Int, 
-                    critterFlags: Int, 
+                    critterFlagsValue: Int,
                     primaryStats: Array[Int], 
                     baseDrAndDt: Array[Int], 
                     age: Int, 
@@ -572,16 +888,15 @@ class ProfileFrame {
                 loadCommon(commonHeader)
 
                 println(s"loaded flagsExt: $flagsExt")
-                val i = CritterInputs.critterActionFlagValues.indexWhere(hexString => Integer.parseInt(hexString.replace("0x", ""), 16) == flagsExt)
-                if (i > -1)
-                    CritterInputs.descPairs(0)(1).asInstanceOf[JComboBox[String]].setSelectedItem(CritterInputs.critterActionFlagValues(i))
+
+                setListFromFlagNum(CritterInputs.actionFlagsList, CritterInputs.actionFlagsValues, flagsExt)
 
                 CritterInputs.descPairs(1)(1).asInstanceOf[JTextField].setText(scriptId.toString)
                 CritterInputs.descPairs(2)(1).asInstanceOf[JTextField].setText(headFid.toString)
                 CritterInputs.descPairs(3)(1).asInstanceOf[JTextField].setText(aiPacket.toString)
                 CritterInputs.descPairs(4)(1).asInstanceOf[JTextField].setText(teamNum.toString)
 
-                setListFromFlagNum(CritterInputs.descPairs(5)(1).asInstanceOf[JList[String]], commonHeaderFlags, critterFlags)
+                setListFromFlagNum(CritterInputs.descPairs(5)(1).asInstanceOf[JList[String]], critterFlags, critterFlagsValue)
 
                 CritterInputs.descPairs(6)(1).asInstanceOf[JComboBox[String]].setSelectedItem(bodyTypeNames(bodyType))
                 CritterInputs.descPairs(7)(1).asInstanceOf[JTextField].setText(expVal.toString)
@@ -627,8 +942,11 @@ class ProfileFrame {
                     case (mask, checkBox) => checkBox.setSelected((mask & itemCommonData(1)) == mask)
                 }
 
+                weaponFlags.foreach{
+                    case (mask, checkBox) => checkBox.setSelected((mask & itemCommonData(2)) == mask)
+                }
+
                 val itemCommonInputs = ItemInputs.fieldPairs.map(_._2)
-                itemCommonInputs(2).asInstanceOf[JTextField].setText(itemCommonData(2).toString)
                 for (i <- Seq(5, 7, 8, 9, 10, 11, 12))
                     itemCommonInputs(i).asInstanceOf[JTextField].setText(itemCommonData(i - 1).toString)
 
