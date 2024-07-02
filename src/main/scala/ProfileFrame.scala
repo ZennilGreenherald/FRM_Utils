@@ -29,7 +29,7 @@ object HeaderInputs {
         ("Object Id", new NumberField()),
         ("Text Id", new NumberField()),
         ("Frm Type", frmTypeCombo),
-        ("Frm Id", new JTextField()),
+        ("Frm Id", new NumberField()),
         ("Light Radius", new NumberField()),
         ("Light Intensity", new NumberField()),
         ("Flags", headerFlagsList)
@@ -573,6 +573,10 @@ class ProfileFrame {
         val frmTypeNameIndex = headerInputs(3).asInstanceOf[JComboBox[String]].getSelectedIndex()
         val frmType        = math.max(0, frmTypeNameIndex)
 
+        println(s"allFrmId ${headerInputs(4).asInstanceOf[NumberField].getText()}")
+        println(s"lightRadius ${headerInputs(5).asInstanceOf[NumberField].getText()}")
+        println(s"lightIntensity ${headerInputs(6).asInstanceOf[NumberField].getText()}")
+
         val allFrmId       = Try(headerInputs(4).asInstanceOf[JTextField].getText().toInt).getOrElse(0)
         val lightRadius    = Try(headerInputs(5).asInstanceOf[JTextField].getText().toInt).getOrElse(0)
         val lightIntensity = Try(headerInputs(6).asInstanceOf[JTextField].getText().toInt).getOrElse(0)
@@ -848,6 +852,7 @@ class ProfileFrame {
             ),
             objectTypeData
         )
+        println(s"saving $profileData")
         val out = new DataOutputStream(new FileOutputStream(outFile))
         Profiler.writeProfileToStream(profileData, out)
 
@@ -932,9 +937,11 @@ class ProfileFrame {
                 commonHeader,
                 ItemData(ItemCommonFields(itemCommonData), subTypeData)
             ) => 
-                loadCommon(commonHeader)
-
+                println(s"Loading item data")
+                println(s"commonHeader: $commonHeader")
                 println(s"itemCommonData: ${itemCommonData.length}: ${itemCommonData.toSeq}")
+
+                loadCommon(commonHeader)
 
                 val (mask, checkBox) = itemFlags(0)
                 checkBox.setSelected((mask & itemCommonData(0)) == mask)

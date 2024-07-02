@@ -3,6 +3,7 @@ import javax.swing.border.*
 import javax.swing.event.*
 import javax.swing.text.*
 import java.awt.*
+import java.awt.event.*
 
 
 class NumberField() extends JTextField, DocumentListener {
@@ -10,6 +11,16 @@ class NumberField() extends JTextField, DocumentListener {
     val origForeground = this.getForeground()
 
     getDocument().addDocumentListener(this)
+
+    override def getText(): String = 
+        val s = super.getText()
+        if (s.startsWith("0x"))
+            println(s"Field starts with 0x: $s")
+            println(s"Field starts with 0x: ${s.drop(2)}")
+            println(s"Field starts with 0x: ${Integer.parseInt(s.drop(2), 16)}")
+            util.Try(Integer.parseInt(s.drop(2), 16).toString).getOrElse(s)
+        else
+            s
 
     override def changedUpdate(e: DocumentEvent): Unit = 
         getText() match
